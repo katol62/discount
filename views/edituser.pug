@@ -1,0 +1,39 @@
+extends layout.pug
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Edit #{subtitle}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='POST' action='/users/edit/'+user.id)
+
+                    input#_method(type='hidden', name='_method', value='PUT')
+                    input#id(type='hidden', name='id', value=(user ? user.id : ''))
+                    .form-group
+                        label(for='name') First Name
+                        input#name.form-control(type='text', name='name', placeholder='First Name' value=(user ? user.name : ''))
+                    .form-group
+                        label(for='last') Last Name
+                        input#last.form-control(type='text', name='last', placeholder='Last Name' value=(user ? user.last : ''))
+                    .form-group
+                        label(for='email') Email address
+                        input#email.form-control(type='email', name='email', placeholder='Email' value=(user ? user.email : ''))
+                    .form-group
+                        label(for='password') Password
+                        input#password.form-control(type='password', name='password', placeholder='Password' value=(user ? user.password : ''))
+                    .form-group
+                        label(for='confirmPassword') Confirm Password
+                        input#confirmPassword.form-control(type='password', name='confirmPassword', placeholder='Confirm Password')
+
+                    button.btn.btn-default(type='submit') Update
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}

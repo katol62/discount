@@ -1,0 +1,29 @@
+div.navbar.navbar-default.navbar-fixed-top(role='navigation')
+    div.container
+        div.navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href="/")
+                | Application
+        div.collapse.navbar-collapse
+            if !account
+                ul.nav.navbar-nav
+                    li(class=(title==='Home'?'active':''))
+                        a(href="/") Home
+                ul.nav.navbar-nav.navbar-right
+                    li(class=(title==='Signin'?'active':''))
+                        a(href="/signin") Signin
+            else
+                ul.nav.navbar-nav
+                    li(class=(title === 'Home' ? 'active' : ''))
+                        a(href="/") Home
+                    li(class=(title === 'Users' ? 'active' : ''))
+                        a(href="/users") Users
+                ul.nav.navbar-nav.navbar-right
+                    li.bold-type
+                        span.navbar-text.bold-type
+                            a(href="/users/profile") #{account.name+' '+account.last}
+                    li(class=(title === 'Signout' ? 'active' : ''))
+                        a(href="/signout") Signout

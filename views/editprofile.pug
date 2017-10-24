@@ -1,0 +1,37 @@
+extends layout.pug
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Edit #{subtitle}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='POST' action='/users/profile')
+                    input#id(type='hidden', name='id', value=account ? account.id : '')
+                    .form-group
+                        label(for='name') First Name
+                        input#name.form-control(type='text', name='name', placeholder='First Name' value=(account ? account.name : ''))
+                    .form-group
+                        label(for='last') Last Name
+                        input#last.form-control(type='text', name='last', placeholder='Last Name' value=(account ? account.last : ''))
+                    .form-group
+                        label(for='email') Email address
+                        input#email.form-control(type='email', name='email', placeholder='Email' value=(account ? account.email : ''))
+                    .form-group
+                        label(for='password') Password
+                        input#password.form-control(type='password', name='password', placeholder='Password' value=(account ? account.password : ''))
+                    .form-group
+                        label(for='confirmPassword') Confirm Password
+                        input#confirmPassword.form-control(type='password', name='confirmPassword', placeholder='Confirm Password')
+
+                    button.btn.btn-default(type='submit') Update
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li.mess.error!= error.msg
+                if success
+                    p.mess.success #{success.msg}

@@ -1,0 +1,38 @@
+extends layout.pug
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Create #{role.userRoleName}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='post' action='/users/create')
+                    input#parent(type='hidden', name='parent', value=account.id)
+                    input#role(type='hidden', name='role', value=role.userRole)
+                    .form-group
+                        label(for='name') First Name
+                        input#name.form-control(type='text', name='name', placeholder='First Name' value='')
+                    .form-group
+                        label(for='last') Last Name
+                        input#last.form-control(type='text', name='last', placeholder='Last Name' value='')
+                    .form-group
+                        label(for='email') Email address
+                        input#email.form-control(type='email', name='email', placeholder='Email' value='')
+                    .form-group
+                        label(for='password') Password
+                        input#password.form-control(type='password', name='password', placeholder='Password' value='')
+                    .form-group
+                        label(for='confirmPassword') Confirm Password
+                        input#confirmPassword.form-control(type='password', name='confirmPassword', placeholder='Confirm Password')
+
+                    button.btn.btn-default(type='submit') Create
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}
