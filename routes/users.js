@@ -1,7 +1,8 @@
 var express = require('express');
 var User = require('./../models/user');
-var router = express.Router();
 var bcrypt = require('bcrypt');
+
+var router = express.Router();
 
 var methodOverride = require('method-override');
 router.use(methodOverride('X-HTTP-Method-Override'));
@@ -142,28 +143,32 @@ router.post('/create', function(req, res, next) {
         });
     } else {
 
-        User.create(req.body.name, req.body.last, req.body.email, req.body.password, req.body.role, req.body.parent, function(err, row){
-            if (err) {
-                return res.render('createuser', {
-                    title: 'Create User',
-                    account: user,
-                    role: returnRole,
-                    errors: [{msg:"User update error"}]
-                });
-            } else {
-                if (row.affectedRows == 0) {
+        bcrypt.hash(req.body.password, 5, function( err, bcryptedPassword) {
+            //save to db
+            User.create(req.body.name, req.body.last, req.body.email, bcryptedPassword, req.body.role, req.body.parent, function(err, row){
+                if (err) {
                     return res.render('createuser', {
                         title: 'Create User',
                         account: user,
                         role: returnRole,
-                        errors: [{msg:"User with email '" +req.body.email+"' already exists"}]
+                        errors: [{msg:"User update error"}]
                     });
                 } else {
-                    req.session.message = 'User has been created!';
-                    return res.redirect('/users');
+                    if (row.affectedRows == 0) {
+                        return res.render('createuser', {
+                            title: 'Create User',
+                            account: user,
+                            role: returnRole,
+                            errors: [{msg:"User with email '" +req.body.email+"' already exists"}]
+                        });
+                    } else {
+                        req.session.message = 'User has been created!';
+                        return res.redirect('/users');
+                    }
                 }
-            }
-        })
+            })
+
+        });
     }
 
 
@@ -213,52 +218,56 @@ router.post('/profile', function(req, res, next) {
         console.log('BODY');
         console.log(req.body);
 
-        User.updateProfile(user.id, req.body.name, req.body.last, req.body.email, req.body.password, function(err, result){
+        bcrypt.hash(req.body.password, 5, function( err, bcryptedPassword) {
+            //save to db
+            User.updateProfile(user.id, req.body.name, req.body.last, req.body.email, bcryptedPassword, function(err, result){
 
-            if (err) {
-                return res.render('editprofile', {
-                    title: 'Profile',
-                    account: user,
-                    user: user,
-                    subtitle: 'Profile',
-                    errors: [{msg:"User update error"}]
-                });
-            } else {
-                if (result == 0) {
+                if (err) {
                     return res.render('editprofile', {
                         title: 'Profile',
                         account: user,
                         user: user,
                         subtitle: 'Profile',
-                        errors: [{msg:"Nothing updated"}]
+                        errors: [{msg:"User update error"}]
                     });
                 } else {
-                    console.log('id='+user.id);
-                    User.getById(user.id, function(err, row){
-                        if (err) {
-                            return res.render('editprofile', {
-                                title: 'Profile',
-                                account: user,
-                                user: user,
-                                subtitle: 'Profile',
-                                errors: [{msg:"User update error"}]
-                            });
-                        } else {
-                            req.session.user = row[0];
+                    if (result == 0) {
+                        return res.render('editprofile', {
+                            title: 'Profile',
+                            account: user,
+                            user: user,
+                            subtitle: 'Profile',
+                            errors: [{msg:"Nothing updated"}]
+                        });
+                    } else {
+                        console.log('id='+user.id);
+                        User.getById(user.id, function(err, row){
+                            if (err) {
+                                return res.render('editprofile', {
+                                    title: 'Profile',
+                                    account: user,
+                                    user: user,
+                                    subtitle: 'Profile',
+                                    errors: [{msg:"User update error"}]
+                                });
+                            } else {
+                                req.session.user = row[0];
 
-                            return res.render('editprofile', {
-                                title: 'Profile',
-                                account: req.session.user,
-                                user: req.session.user,
-                                subtitle: 'Profile',
-                                success: {msg:"User successfully updated"}
-                            });
-                        }
-                    })
+                                return res.render('editprofile', {
+                                    title: 'Profile',
+                                    account: req.session.user,
+                                    user: req.session.user,
+                                    subtitle: 'Profile',
+                                    success: {msg:"User successfully updated"}
+                                });
+                            }
+                        })
 
+                    }
                 }
-            }
-        })
+            })
+
+        });
     }
 
 
@@ -327,45 +336,50 @@ router.put('/edit/:id', function(req, res, next) {
             errors: errors
         });
     } else {
-        User.update(id, req.body.name, req.body.last, req.body.email, req.body.password, function(err, result){
 
-            if (err) {
-                return res.render('edituser', {
-                    title: 'User Edit',
-                    account: parent,
-                    user: user,
-                    subtitle: user.name+' '+user.last,
-                    errors: [{msg:"User update error: "+err.sqlMessage}]
-                });
-            } else {
-                if (result == 0) {
+        bcrypt.hash(req.body.password, 5, function( err, bcryptedPassword) {
+            //save to db
+            User.update(id, req.body.name, req.body.last, req.body.email, bcryptedPassword, function(err, result){
+
+                if (err) {
                     return res.render('edituser', {
                         title: 'User Edit',
                         account: parent,
                         user: user,
                         subtitle: user.name+' '+user.last,
-                        errors: [{msg:"Nothing updated"}]
+                        errors: [{msg:"User update error: "+err.sqlMessage}]
                     });
                 } else {
-                    console.log('id='+user.id);
-                    User.getById(user.id, function(err, row){
-                        if (err) {
-                            return res.render('edituser', {
-                                title: 'User Edit',
-                                account: parent,
-                                user: user,
-                                subtitle: user.name+' '+user.last,
-                                errors: [{msg:"!!!User update error: "+err}]
-                            });
-                        } else {
-                            req.session.message = 'User has been updated';
-                            res.redirect('/users');
-                        }
-                    })
+                    if (result == 0) {
+                        return res.render('edituser', {
+                            title: 'User Edit',
+                            account: parent,
+                            user: user,
+                            subtitle: user.name+' '+user.last,
+                            errors: [{msg:"Nothing updated"}]
+                        });
+                    } else {
+                        console.log('id='+user.id);
+                        User.getById(user.id, function(err, row){
+                            if (err) {
+                                return res.render('edituser', {
+                                    title: 'User Edit',
+                                    account: parent,
+                                    user: user,
+                                    subtitle: user.name+' '+user.last,
+                                    errors: [{msg:"!!!User update error: "+err}]
+                                });
+                            } else {
+                                req.session.message = 'User has been updated';
+                                res.redirect('/users');
+                            }
+                        })
 
+                    }
                 }
-            }
-        })
+            })
+        });
+
     }
 });
 

@@ -1,11 +1,16 @@
 var express = require('express');
 var config = require('./../misc/config');
 var User = require('./../models/user');
+var bcrypt = require('bcrypt');
+
 var router = express.Router();
 
 /* GET signin page. */
 router.get('/', function(req, res, next) {
-    res.render('signin', { title: 'Signin', loggedout: true});
+    res.render('signin', {
+        title: 'Signin',
+        loggedout: true
+    });
 });
 
 router.post('/', function(req, res, next){
@@ -51,16 +56,22 @@ router.post('/', function(req, res, next){
                 } else {
                     //TODO - add bycrypt
                     console.log(row);
-                    if (row[0]['password'] !== req.body.password) {
-                        return res.render('signin', {
-                            title: 'Signin',
-                            loggedout: true,
-                            errors: [{msg: "Password invalid"}]
-                        });
-                    } else {
-                        req.session.user = row[0];
-                        return res.redirect('/users');
-                    }
+
+                    var hash = row[0]['password'];
+                    bcrypt.compare(req.body.password, hash, function(err, doesMatch){
+                        if (doesMatch){
+                            //log him in
+                            req.session.user = row[0];
+                            return res.redirect('/users');
+                        }else{
+                            //go away
+                            return res.render('signin', {
+                                title: 'Signin',
+                                loggedout: true,
+                                errors: [{msg: "Password invalid"}]
+                            });
+                        }
+                    });
                 }
             }
         })
