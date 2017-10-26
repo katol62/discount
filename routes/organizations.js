@@ -18,7 +18,11 @@ router.use(function(req, res, next) {
     if (!req.session.user) {
         return res.redirect('/signin');
     } else {
-        next();
+        if (req.session.user.role !== 'admin') {
+            return res.redirect('/');
+        } else {
+            next();
+        }
     }
 });
 
