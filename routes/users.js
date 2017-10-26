@@ -37,9 +37,9 @@ router.get('/', function(req, res, next) {
 
     var id = req.session.user.id;
 
-    var session_message = req.session.message;
+    var session_message = req.session.message ? req.session.message : null;
     req.session.message = null;
-    var session_error = req.session.error;
+    var session_error = req.session.error ? req.session.error : null;
     req.session.error = null;
 
     User.getForRoles(roles, id, function(err, rows) {

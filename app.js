@@ -13,6 +13,7 @@ var index = require('./routes/index');
 var api = require('./routes/api/api');
 var signin = require('./routes/signin');
 var usersmodule = require('./routes/users');
+var organizationmodule = require('./routes/organizations');
 
 var app = express();
 
@@ -45,6 +46,7 @@ app.use('/', index);
 
 app.use('/signin', signin);
 app.use('/users', usersmodule);
+app.use('/organizations', organizationmodule);
 
 //api
 app.use('/api', api);

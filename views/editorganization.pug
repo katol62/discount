@@ -1,0 +1,27 @@
+extends layout.pug
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Edit #{organization.name}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='POST' action='/organizations/edit/'+organization.id)
+                    input#_method(type='hidden', name='_method', value='PUT')
+                    input#id(type='hidden', name='id', value=organization.id)
+                    input#owner(type='hidden', name='owner', value=account.id)
+                    .form-group
+                        label(for='name') Organization Name
+                        input#name.form-control(type='text', name='name', placeholder='Organization Name' value=(organization ? organization.name : ''))
+
+                    button.btn.btn-default(type='submit') Update
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}

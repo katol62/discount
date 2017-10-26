@@ -1,0 +1,25 @@
+extends layout.pug
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Create Organization
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='post' action='/organizations/create')
+                    input#owner(type='hidden', name='owner', value=account.id)
+                    .form-group
+                        label(for='name') Organization Name
+                        input#name.form-control(type='text', name='name', placeholder='Organization Name' value='')
+
+                    button.btn.btn-default(type='submit') Create
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}
