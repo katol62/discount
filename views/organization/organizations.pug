@@ -1,13 +1,13 @@
-extends layout.pug
+extends ../layout
 
 block content
 
     div.container
         div.row
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
-                h2 Users
+                h2 Organizations
             div.col-lg-12.margin-top
-                a(href="/users/create") Create User
+                a(href="/organizations/create") Create Organization
             if items
                 div.col-lg-12.margin-top
 
@@ -16,25 +16,28 @@ block content
                         table.table.table-bordered
                             thead
                                 tr: th Name
-                                    th Email
-                                    th Role
+                                    if account.role == 'super'
+                                        th Owner
                                     th Actions
                             tbody
                                 each item, i in items
                                     tr
-                                        td #{item.name+' '+item.last}
-                                        td #{item.email}
-                                        td #{item.role}
+                                        td #{item.name}
+                                        if account.role == 'super'
+                                            td #{item.owner}
                                         td
-                                            a(href='/users/edit/' + item.id) Edit
+                                            a(href='/organizations/edit/' + item.id) Edit
                                             |&nbsp;|&nbsp;
                                             a(onclick='doConfirmDelete('+ item.id+'); return false;' style='cursor:pointer') Delete
+                                            if account.role == 'admin'
+                                                | &nbsp;|&nbsp;
+                                                a(style='cursor:pointer') Tarifs
 
 
                 script(type='text/javascript').
                     function doConfirmDelete(id) {
                         bootbox.confirm({
-                            message: "Delete user?",
+                            message: "Delete organization?",
                             buttons: {
                                 confirm: {
                                     label: 'Yes',
@@ -48,7 +51,7 @@ block content
                             callback: function (result) {
                                 if (result) {
                                     var xhr = new XMLHttpRequest();
-                                    var url = '/users/delete/'+id;
+                                    var url = '/organizations/delete/'+id;
                                     xhr.open('DELETE', url, true);
                                     xhr.setRequestHeader('X-HTTP-Method-Override', 'DELETE');
                                     xhr.onreadystatechange = function () {

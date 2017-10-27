@@ -46,7 +46,7 @@ router.get('/', function(req, res, next) {
 
             Organization.getAll(function(err, rows) {
                 if (err) {
-                    return res.render('organizations', {
+                    return res.render('organization/organizations', {
                         title: 'Organizations',
                         account: user,
                         message: session_message,
@@ -55,7 +55,7 @@ router.get('/', function(req, res, next) {
                     });
                 } else {
                     if (rows.length == 0) {
-                        return res.render('organizations', {
+                        return res.render('organization/organizations', {
                             title: 'Organizations',
                             account: user,
                             message: session_message,
@@ -63,7 +63,7 @@ router.get('/', function(req, res, next) {
                             errors: [{msg:"Organizations not found"}]
                         });
                     } else {
-                        return res.render('organizations', {
+                        return res.render('organization/organizations', {
                             title: 'Organizations',
                             account: user,
                             message: session_message,
@@ -77,7 +77,7 @@ router.get('/', function(req, res, next) {
         } else {
             Organization.getByOwner(id, function(err, rows) {
                 if (err) {
-                    return res.render('organizations', {
+                    return res.render('organization/organizations', {
                         title: 'Organizations',
                         account: user,
                         message: session_message,
@@ -86,7 +86,7 @@ router.get('/', function(req, res, next) {
                     });
                 } else {
                     if (rows.length == 0) {
-                        return res.render('organizations', {
+                        return res.render('organization/organizations', {
                             title: 'Organizations',
                             account: user,
                             message: session_message,
@@ -94,7 +94,7 @@ router.get('/', function(req, res, next) {
                             errors: [{msg:"Organizations not found"}]
                         });
                     } else {
-                        return res.render('organizations', {
+                        return res.render('organization/organizations', {
                             title: 'Organizations',
                             account: user,
                             message: session_message,
@@ -122,7 +122,7 @@ router.get('/create', function(req, res, next) {
     var sessionData = req.session;
     var user = sessionData.user;
 
-    return res.render('createorganization', {
+    return res.render('organization/createorganization', {
         title: 'Create Organization',
         account: user
     });
@@ -137,12 +137,8 @@ router.post('/create', function(req, res, next) {
 
     var user = req.session.user;
 
-    console.log('==========')
-    console.log(req.body)
-    console.log('==========')
-
     if (errors) {
-        return res.render('createuser', {
+        return res.render('organization/createorganization', {
             title: 'Create Organization',
             account: user,
             errors: errors
@@ -151,14 +147,14 @@ router.post('/create', function(req, res, next) {
 
         Organization.create(req.body.name, req.body.owner, function(err, row){
             if (err) {
-                return res.render('createorganization', {
+                return res.render('organization/createorganization', {
                     title: 'Create Organization',
                     account: user,
                     errors: [{msg:"Organization create error"}]
                 });
             } else {
                 if (row.affectedRows == 0) {
-                    return res.render('createorganization', {
+                    return res.render('organization/createorganization', {
                         title: 'Create Organization',
                         account: user,
                         errors: [{msg:"Organization named '" +req.body.name+"' already exists"}]
@@ -184,20 +180,20 @@ router.get('/edit/:id', function(req, res, next) {
 
     Organization.getById(id, function(err, rows){
         if (err) {
-            return res.render('organizations', {
+            return res.render('organization/organizations', {
                 title: 'Organizations',
                 account: parent,
                 errors: [{msg:"DB Error:"+err.code}]
             });
         } else {
             if (rows.length == 0) {
-                return res.render('organizations', {
+                return res.render('organization/organizations', {
                     title: 'Organizations',
                     account: parent,
                     errors: [{msg:"Organization not found"}]
                 });
             } else {
-                return res.render('editorganization', {
+                return res.render('organization/editorganization', {
                     title: 'Organization Edit',
                     account: parent,
                     organization: rows[0]
@@ -223,7 +219,7 @@ router.put('/edit/:id', function(req, res, next) {
     var id = req.body.id;
 
     if (errors) {
-        return res.render('editorganization', {
+        return res.render('organization/editorganization', {
             title: 'Organization Edit',
             account: parent,
             organization: organization,
@@ -234,7 +230,7 @@ router.put('/edit/:id', function(req, res, next) {
         Organization.update(id, req.body.name, req.body.owner, function(err, result){
 
             if (err) {
-                return res.render('editorganization', {
+                return res.render('organization/editorganization', {
                     title: 'Organization Edit',
                     account: parent,
                     organization: organization,
@@ -242,7 +238,7 @@ router.put('/edit/:id', function(req, res, next) {
                 });
             } else {
                 if (result.rowsAffected == 0) {
-                    return res.render('editorganization', {
+                    return res.render('organization/editorganization', {
                         title: 'Organization Edit',
                         account: parent,
                         organization: organization,
@@ -251,7 +247,7 @@ router.put('/edit/:id', function(req, res, next) {
                 } else {
                     Organization.getById(organization.id, function(err, row){
                         if (err) {
-                            return res.render('editorganization', {
+                            return res.render('organization/editorganization', {
                                 title: 'Organization Edit',
                                 account: parent,
                                 organization: organization,
@@ -292,7 +288,7 @@ router.delete('/delete/:id', function(req, res, next) {
                 req.session.error = 'Organization not deleted';
             }
         }
-        return res.render('users', {
+        return res.render('organization/organizations', {
             title: 'Organizations',
             account: user,
             message: req.session.message,

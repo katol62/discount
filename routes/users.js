@@ -44,7 +44,7 @@ router.get('/', function(req, res, next) {
 
     User.getForRoles(roles, id, function(err, rows) {
         if (err) {
-            return res.render('users', {
+            return res.render('user/users', {
                 title: 'Users',
                 account: user,
                 message: session_message,
@@ -53,7 +53,7 @@ router.get('/', function(req, res, next) {
             });
         } else {
             if (rows.length == 0) {
-                return res.render('users', {
+                return res.render('user/users', {
                     title: 'Users',
                     account: user,
                     message: session_message,
@@ -61,7 +61,7 @@ router.get('/', function(req, res, next) {
                     errors: [{msg:"Users not found"}]
                 });
             } else {
-                return res.render('users', {
+                return res.render('user/users', {
                     title: 'Users',
                     account: user,
                     message: session_message,
@@ -98,7 +98,7 @@ router.get('/create', function(req, res, next) {
             userRoleName: 'Cashier'
         }
     }
-    return res.render('createuser', {
+    return res.render('user/createuser', {
         title: 'Create User',
         account: user,
         role: returnRole
@@ -135,7 +135,7 @@ router.post('/create', function(req, res, next) {
     }
 
     if (errors) {
-        return res.render('createuser', {
+        return res.render('user/createuser', {
             title: 'Create User',
             account: user,
             role: returnRole,
@@ -147,7 +147,7 @@ router.post('/create', function(req, res, next) {
             //save to db
             User.create(req.body.name, req.body.last, req.body.email, bcryptedPassword, req.body.role, req.body.parent, function(err, row){
                 if (err) {
-                    return res.render('createuser', {
+                    return res.render('user/createuser', {
                         title: 'Create User',
                         account: user,
                         role: returnRole,
@@ -155,7 +155,7 @@ router.post('/create', function(req, res, next) {
                     });
                 } else {
                     if (row.affectedRows == 0) {
-                        return res.render('createuser', {
+                        return res.render('user/createuser', {
                             title: 'Create User',
                             account: user,
                             role: returnRole,
@@ -181,7 +181,7 @@ router.post('/create', function(req, res, next) {
 router.get('/profile', function(req, res, next) {
     var user = req.session.user;
 
-    return res.render('editprofile', {
+    return res.render('user/editprofile', {
         title: 'Profile',
         subtitle: 'Profile',
         account: user,
@@ -207,7 +207,7 @@ router.post('/profile', function(req, res, next) {
     var sessionData = req.session;
 
     if (errors) {
-        return res.render('editprofile', {
+        return res.render('user/editprofile', {
             title: 'Profile',
             account: user,
             user: user,
@@ -223,7 +223,7 @@ router.post('/profile', function(req, res, next) {
             User.updateProfile(user.id, req.body.name, req.body.last, req.body.email, bcryptedPassword, function(err, result){
 
                 if (err) {
-                    return res.render('editprofile', {
+                    return res.render('user/editprofile', {
                         title: 'Profile',
                         account: user,
                         user: user,
@@ -232,7 +232,7 @@ router.post('/profile', function(req, res, next) {
                     });
                 } else {
                     if (result == 0) {
-                        return res.render('editprofile', {
+                        return res.render('user/editprofile', {
                             title: 'Profile',
                             account: user,
                             user: user,
@@ -243,7 +243,7 @@ router.post('/profile', function(req, res, next) {
                         console.log('id='+user.id);
                         User.getById(user.id, function(err, row){
                             if (err) {
-                                return res.render('editprofile', {
+                                return res.render('user/editprofile', {
                                     title: 'Profile',
                                     account: user,
                                     user: user,
@@ -253,7 +253,7 @@ router.post('/profile', function(req, res, next) {
                             } else {
                                 req.session.user = row[0];
 
-                                return res.render('editprofile', {
+                                return res.render('user/editprofile', {
                                     title: 'Profile',
                                     account: req.session.user,
                                     user: req.session.user,
@@ -285,20 +285,20 @@ router.get('/edit/:id', function(req, res, next) {
 
     User.getById(id, function(err, rows){
        if (err) {
-           return res.render('users', {
+           return res.render('user/users', {
                title: 'Users',
                account: parent,
                errors: [{msg:"DB Error:"+err.code}]
            });
        } else {
            if (rows.length == 0) {
-               return res.render('users', {
+               return res.render('user/users', {
                    title: 'Users',
                    account: parent,
                    errors: [{msg:"Users not found"}]
                });
            } else {
-               return res.render('edituser', {
+               return res.render('user/edituser', {
                    title: 'User Edit',
                    account: parent,
                    subtitle: rows[0].name+' '+rows[0].last,
@@ -329,7 +329,7 @@ router.put('/edit/:id', function(req, res, next) {
     var user = req.body;
     var id = req.body.id;
     if (errors) {
-        return res.render('edituser', {
+        return res.render('user/edituser', {
             title: 'User Edit',
             account: parent,
             user: user,
@@ -342,7 +342,7 @@ router.put('/edit/:id', function(req, res, next) {
             User.update(id, req.body.name, req.body.last, req.body.email, bcryptedPassword, function(err, result){
 
                 if (err) {
-                    return res.render('edituser', {
+                    return res.render('user/edituser', {
                         title: 'User Edit',
                         account: parent,
                         user: user,
@@ -351,7 +351,7 @@ router.put('/edit/:id', function(req, res, next) {
                     });
                 } else {
                     if (result == 0) {
-                        return res.render('edituser', {
+                        return res.render('user/edituser', {
                             title: 'User Edit',
                             account: parent,
                             user: user,
@@ -362,7 +362,7 @@ router.put('/edit/:id', function(req, res, next) {
                         console.log('id='+user.id);
                         User.getById(user.id, function(err, row){
                             if (err) {
-                                return res.render('edituser', {
+                                return res.render('user/edituser', {
                                     title: 'User Edit',
                                     account: parent,
                                     user: user,
@@ -408,7 +408,7 @@ router.delete('/delete/:id', function(req, res, next) {
                 req.session.error = 'User not deleted';
             }
         }
-        return res.render('users', {
+        return res.render('user/users', {
             title: 'Users',
             account: user,
             message: req.session.message,
