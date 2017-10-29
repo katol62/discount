@@ -3,7 +3,15 @@ var db = require('../misc/db');
 var Organization = {
 
     getAll: function (done) {
-        db.query('SELECT * from organization', function (err, rows) {
+        db.query('select s.id, s.name, s.owner, u.id as uid, u.name as uname, u.last as ulast from organization s join users u on s.owner = u.id and u.role=\'admin\'', function (err, rows) {
+            if (err) {
+                return done(err)
+            }
+            done(null, rows)
+        })
+    },
+    getAllByOwner: function (id, done) {
+        db.query(' select s.id, s.name, s.owner, u.id as uid, u.name as uname, u.last as ulast from organization s join users u on s.owner = u.id and u.role=\'admin\' and u.id = ?', [id], function (err, rows) {
             if (err) {
                 return done(err)
             }

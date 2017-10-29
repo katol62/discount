@@ -21,7 +21,7 @@ div.navbar.navbar-default.navbar-fixed-top(role='navigation')
                         a(href="/") Home
                     li(class=(title === 'Users' ? 'active' : ''))
                         a(href="/users") Users
-                    if account.role == 'admin'
+                    if account.role != 'cashier'
                         li(class=(title === 'Organizations' ? 'active' : ''))
                             a(href="/organizations") Organizations
                 ul.nav.navbar-nav.navbar-right

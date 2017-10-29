@@ -1,0 +1,59 @@
+extends ../layout
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Edit #{tariff.name}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='post' action='/organizations/'+oid+'/tariffs/edit/'+tariff.id)
+                    input#_method(type='hidden', name='_method', value='PUT')
+                    input#id(type='hidden', name='id', value=tariff.id)
+                    input#organization(type='hidden', name='organization', value=oid)
+                    input#owner(type='hidden', name='owner', value=account.id)
+                    .form-group
+                        label(for='name') Name
+                        input#name.form-control(type='text', name='name', placeholder='Name' value=tariff.name)
+                    .form-group
+                        label(for='datepicker') Period
+                        #datepicker.input-group.input-daterange
+                            input.form-control(type='text', name='start' placeholder='Start Date' value=moment(tariff.start).format("YYYY-MM-DD"))
+                            .input-group-addon to
+                            input.form-control(type='text', name='end' placeholder='End Date' value=moment(tariff.end).format("YYYY-MM-DD"))
+                    .form-group
+                        label(for='type') Tariff Type
+                        select#type.form-control.selectpicker(name="type" type="select" )
+                            each type in types
+                                if type.code==tariff.type
+                                    option(value=type.code selected) #{type.name}
+                                else
+                                    option(value=type.code) #{type.name}
+                    .form-group
+                        label(for='discount') Disсount
+                        input#discount.form-control(type='number', name='discount', placeholder='Discount' value=tariff.discount)
+
+                    button.btn.btn-default(type='submit') Update
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -8,6 +8,7 @@ var lessMiddleware = require('less-middleware');
 var expressValidator = require('express-validator');
 var session = require('express-session');
 var methodOverride = require('method-override');
+var moment = require('moment');
 
 var index = require('./routes/index');
 var api = require('./routes/api/api');
@@ -19,10 +20,15 @@ var app = express();
 
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
 app.use('/bootbox', express.static(__dirname + '/node_modules/bootbox/'));
+app.use('/bootstrap-datepicker', express.static(__dirname + '/node_modules/bootstrap-datepicker/dist/'));
+app.use('/bootstrap-select', express.static(__dirname + '/node_modules/bootstrap-select/dist/'));
 
 var config = require('./misc/config');
 app.set('superSecret', config.secret);
 app.set('sessionSecret', config.sessionSecret);
+
+//app locals
+app.locals.moment = moment;
 
 //session
 app.use(session({ secret: 'sessionSecret', resave: true,

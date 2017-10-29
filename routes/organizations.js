@@ -1,5 +1,8 @@
 var express = require('express');
+
+var config = require('../misc/config');
 var Organization = require('./../models/organization');
+var Tariff = require('./../models/tariff');
 
 var router = express.Router();
 
@@ -18,7 +21,7 @@ router.use(function(req, res, next) {
     if (!req.session.user) {
         return res.redirect('/signin');
     } else {
-        if (req.session.user.role !== 'admin') {
+        if (req.session.user.role === 'cashier') {
             return res.redirect('/');
         } else {
             next();
@@ -27,6 +30,57 @@ router.use(function(req, res, next) {
 });
 
 //list organizations
+router.get('/owner/:id', function(req, res, next) {
+
+    var user = req.session.user;
+
+    if (user) {
+
+        var uid = req.params.id;
+        var role = req.session.user.role;
+
+        var session_message = req.session.message ? req.session.message : null;
+        req.session.message = null;
+        var session_error = req.session.error ? req.session.error : null;
+        req.session.error = null;
+
+
+        Organization.getAllByOwner(uid, function(err, rows) {
+            if (err) {
+                return res.render('organization/organizations', {
+                    title: 'Organizations',
+                    account: user,
+                    message: session_message,
+                    error: session_error,
+                    errors: [{msg:"DB Error:"+err.code}]
+                });
+            } else {
+                if (rows.length == 0) {
+                    return res.render('organization/organizations', {
+                        title: 'Organizations',
+                        account: user,
+                        message: session_message,
+                        error: session_error,
+                        errors: [{msg:"Organizations not found"}]
+                    });
+                } else {
+                    return res.render('organization/organizations', {
+                        title: 'Organizations',
+                        account: user,
+                        message: session_message,
+                        error: session_error,
+                        items: rows
+                    });
+                }
+            }
+        })
+
+    } else {
+        return res.redirect('/signin');
+    }
+
+});
+
 router.get('/', function(req, res, next) {
 
     var user = req.session.user;
@@ -172,7 +226,7 @@ router.post('/create', function(req, res, next) {
  * Edit
  */
 
-router.get('/edit/:id', function(req, res, next) {
+router.get('/:id/edit', function(req, res, next) {
 
     var parent = req.session.user;
 
@@ -206,7 +260,7 @@ router.get('/edit/:id', function(req, res, next) {
 
 });
 
-router.put('/edit/:id', function(req, res, next) {
+router.put('/:id/edit', function(req, res, next) {
 
     var parent = req.session.user;
 
@@ -217,6 +271,7 @@ router.put('/edit/:id', function(req, res, next) {
 
     var organization = req.body;
     var id = req.body.id;
+    var uid = req.body.uid;
 
     if (errors) {
         return res.render('organization/editorganization', {
@@ -297,6 +352,279 @@ router.delete('/delete/:id', function(req, res, next) {
         });
     });
 
+});
+
+/*
+ * TARIFFS
+ */
+
+router.get('/:id/tariffs', function(req, res, next) {
+
+    var user = req.session.user;
+    var oid = req.params.id;
+
+    if (user) {
+
+        var id = req.session.user.id;
+        var role = req.session.user.role;
+
+        var session_message = req.session.message ? req.session.message : null;
+        req.session.message = null;
+        var session_error = req.session.error ? req.session.error : null;
+        req.session.error = null;
+
+        Tariff.getByOrganization(oid, function(err, rows) {
+            if (err) {
+                return res.render('tariff/tariffs', {
+                    title: 'Tariffs',
+                    account: user,
+                    message: session_message,
+                    oid: oid,
+                    error: session_error,
+                    errors: [{msg:"DB Error:"+err.code}]
+                });
+            } else {
+                if (rows.length == 0) {
+                    return res.render('tariff/tariffs', {
+                        title: 'Tariffs',
+                        account: user,
+                        oid: oid,
+                        message: session_message,
+                        error: session_error,
+                        errors: [{msg:"Tariffs not found"}]
+                    });
+                } else {
+                    return res.render('tariff/tariffs', {
+                        title: 'Tariffs',
+                        account: user,
+                        oid: oid,
+                        message: session_message,
+                        error: session_error,
+                        items: rows
+                    });
+                }
+            }
+        })
+
+    } else {
+        return res.redirect('/signin');
+    }
+
+});
+
+/*
+ * Create tariff
+ */
+
+//create user form
+router.get('/:id/tariffs/create', function(req, res, next) {
+
+    var sessionData = req.session;
+    var user = sessionData.user;
+    var oid = req.params.id;
+
+    return res.render('tariff/createtariff', {
+        title: 'Create Tariff',
+        oid: oid,
+        types: config.tariffTypes,
+        account: user
+    });
+
+});
+//create user post
+router.post('/:id/tariffs/create', function(req, res, next) {
+
+    req.checkBody('name', 'Tariff name required').notEmpty();
+    req.checkBody('start', 'Start date required').notEmpty();
+    req.checkBody('end', 'End date required').notEmpty();
+    req.checkBody('type', 'Tariff type required').notEmpty();
+    req.checkBody('discount', 'Discount required').notEmpty();
+
+    var errors = req.validationErrors();
+
+    var user = req.session.user;
+
+    if (errors) {
+        return res.render('tariff/createtariff', {
+            title: 'Create Tariff',
+            types: config.tariffTypes,
+            account: user,
+            errors: errors
+        });
+    } else {
+
+        Tariff.create(req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, req.body.organization, req.body.owner, function(err, row){
+            if (err) {
+                console.log(err);
+                return res.render('tariff/createtariff', {
+                    title: 'Create Tariff',
+                    account: user,
+                    types: config.tariffTypes,
+                    errors: [{msg:"Tariff create error "+err}]
+                });
+            } else {
+                if (row.affectedRows == 0) {
+                    return res.render('tariff/createtariff', {
+                        title: 'Create Tariff',
+                        account: user,
+                        types: config.tariffTypes,
+                        errors: [{msg:"Tariff named '" +req.body.name+"' already exists"}]
+                    });
+                } else {
+                    req.session.message = 'Tariff has been created!';
+                    return res.redirect('/organizations/'+oid+'/tariffs');
+                }
+            }
+        })
+    }
+});
+
+/*
+ * delete
+ */
+
+router.delete('/:oid/tariffs/delete/:id', function(req, res, next) {
+
+    var delid = req.params.id;
+
+    var sessionData = req.session;
+    var user = sessionData.user;
+
+    var id = req.session.user.id;
+    var oid = req.params.oid;
+
+    Tariff.delete(delid, function(err, rows) {
+        if (err) {
+            req.session.error = 'Delete error: '+err;
+        } else {
+            if (rows.affectedRows) {
+                req.session.message = 'Tariff has been deleted';
+            } else {
+                req.session.error = 'Tariff not deleted';
+            }
+        }
+        return res.render('/organizations/'+oid+'/tariffs', {
+            title: 'Tariffs',
+            account: user,
+            oid: oid,
+            message: req.session.message,
+            error: req.session.error,
+            items: []
+        });
+    });
+
+});
+
+/*
+ * Edit
+ */
+
+router.get('/:oid/tariffs/edit/:id', function(req, res, next) {
+
+    var parent = req.session.user;
+
+    var id = req.params.id;
+    var oid = req.params.oid;
+
+    Tariff.getById(id, function(err, rows){
+        if (err) {
+            return res.render('tariff/tariffs', {
+                title: 'Tariffs',
+                account: parent,
+                oid: oid,
+                types: config.tariffTypes,
+                errors: [{msg:"DB Error:"+err.code}]
+            });
+        } else {
+            if (rows.length == 0) {
+                return res.render('tariff/tariffs', {
+                    title: 'Tariffs',
+                    account: parent,
+                    oid: oid,
+                    types: config.tariffTypes,
+                    errors: [{msg:"Tariff not found"}]
+                });
+            } else {
+                return res.render('tariff/edittariff', {
+                    title: 'Tariff Edit',
+                    account: parent,
+                    oid: oid,
+                    types: config.tariffTypes,
+                    tariff: rows[0]
+                });
+            }
+
+        }
+    });
+
+});
+
+router.put('/:oid/tariffs/edit/:id', function(req, res, next) {
+
+    var parent = req.session.user;
+
+    req.checkBody('name', 'Tariff name required').notEmpty();
+
+    var errors = req.validationErrors();
+    console.log(errors);
+
+    var tariff = req.body;
+    var id = req.body.id;
+    var oid = req.params.oid;
+
+    if (errors) {
+        return res.render('tariff/edittariff', {
+            title: 'Tariff Edit',
+            account: parent,
+            tariff: tariff,
+            oid: oid,
+            types: config.tariffTypes,
+            errors: errors
+        });
+    } else {
+
+        Tariff.update(id, req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, req.body.owner, function(err, result){
+
+            if (err) {
+                return res.render('tariff/edittariff', {
+                    title: 'Tariff Edit',
+                    account: parent,
+                    tariff: tariff,
+                    oid: oid,
+                    types: config.tariffTypes,
+                    errors: [{msg:"Tariff update error: "+err.sqlMessage}]
+                });
+            } else {
+                if (result.rowsAffected == 0) {
+                    return res.render('tariff/edittariff', {
+                        title: 'Tariff Edit',
+                        account: parent,
+                        tariff: tariff,
+                        oid: oid,
+                        types: config.tariffTypes,
+                        errors: [{msg:"Nothing updated"}]
+                    });
+                } else {
+                    Tariff.getById(tariff.id, function(err, row){
+                        if (err) {
+                            return res.render('tariff/edittariff', {
+                                title: 'Tariff Edit',
+                                account: parent,
+                                tariff: tariff,
+                                oid: oid,
+                                types: config.tariffTypes,
+                                errors: [{msg:"Tariff update error: "+err}]
+                            });
+                        } else {
+                            req.session.message = 'Tariff has been updated';
+                            return res.redirect('/organizations/'+oid+'/tariffs');
+                        }
+                    })
+
+                }
+            }
+        })
+    }
 });
 
 

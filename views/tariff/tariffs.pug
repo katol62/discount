@@ -5,10 +5,10 @@ block content
     div.container
         div.row
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
-                h2 Organizations
+                h2 Tariffs
             if account.role == 'admin'
                 div.col-lg-12.margin-top
-                    a(href="/organizations/create") Create Organization
+                    a(href="/organizations/"+oid+"/tariffs/create") Create Tariff
             if items
                 div.col-lg-12.margin-top
 
@@ -17,29 +17,25 @@ block content
                         table.table.table-bordered
                             thead
                                 tr: th Name
-                                    if account.role == 'super'
-                                        th Owner
+                                    th Period
+                                    th Discount
                                     th Actions
                             tbody
                                 each item, i in items
                                     tr
                                         td #{item.name}
-                                        if item.uid
-                                            td
-                                                a(href='/users/edit/'+item.uid) #{item.uname+' '+item.ulast}
+                                        td #{moment(item.start).format("YYYY/MM/DD") + ' - '+moment(item.end).format("YYYY/MM/DD")}
+                                        td #{item.discount}
                                         td
-                                            a(href='/organizations/' + item.id + '/edit') Edit
+                                            a(href='/organizations/'+oid+'/tariffs/edit/'+item.id) Edit
                                             |&nbsp;|&nbsp;
-                                            a(onclick='doConfirmDelete('+ item.id+'); return false;' style='cursor:pointer') Delete
-                                            if account.role != 'cashier'
-                                                | &nbsp;|&nbsp;
-                                                a(href='/organizations/'+item.id+'/tariffs') Tariffs
+                                            a(onclick='doConfirmDelete('+ item.id+', "'+item.name+'", '+oid+'); return false;' style='cursor:pointer') Delete
 
 
                 script(type='text/javascript').
-                    function doConfirmDelete(id) {
+                    function doConfirmDelete(id, name, oid) {
                         bootbox.confirm({
-                            message: "Delete organization?",
+                            message: "Delete tariff \""+name+"\"?",
                             buttons: {
                                 confirm: {
                                     label: 'Yes',
@@ -53,7 +49,7 @@ block content
                             callback: function (result) {
                                 if (result) {
                                     var xhr = new XMLHttpRequest();
-                                    var url = '/organizations/delete/'+id;
+                                    var url = '/organizations/'+oid+'/tariffs/delete/'+id;
                                     xhr.open('DELETE', url, true);
                                     xhr.setRequestHeader('X-HTTP-Method-Override', 'DELETE');
                                     xhr.onreadystatechange = function () {

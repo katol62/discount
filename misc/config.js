@@ -4,5 +4,7 @@ module.exports = {
     'sessionSecret': '2dgiEtWdUxbqK9hZ9sWZ4KdGwI5pRmQo0xivuMlh5G2f0ZBco2eDPEZ269Mg',
     'menuUnsigned': [{label: "Signin", link: '/signin'}],
     'menuSigned': [{label: "Users", link: '/users'}, {label: "Signout", link: '/signout'}],
-    'roles': ['super', 'admin', 'cashier']
+    'roles': ['super', 'admin', 'cashier'],
+    'tariffTypes': [{code:'adult', name:'Adult'},{code:'child',name:'Child'},{code:'other', name:'Other'}]
+
 };

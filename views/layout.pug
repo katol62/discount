@@ -8,6 +8,8 @@ html
                 meta(name='description', content='')
                 meta(name='keywords', content='')
             link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+            link(rel='stylesheet', href='/bootstrap-datepicker/css/bootstrap-datepicker.min.css')
+            link(rel='stylesheet', href='/bootstrap-select/css/bootstrap-select.min.css')
             | <style>
             | body { padding-top: 60px; }
             | </style>
@@ -15,6 +17,8 @@ html
             //script(src='//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
             script(src='/jquery/jquery.min.js')
             script(src='/bootbox/bootbox.min.js')
+            script(src='/bootstrap-datepicker/js/bootstrap-datepicker.min.js')
+            script(src='/bootstrap-select/js/bootstrap-select.min.js')
 
     body
 
@@ -23,3 +27,11 @@ html
         block content
 
         include footer.pug
+
+    script(type='text/javascript').
+        $(document).ready(function () {
+            $('#datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'ru'
+            });
+        })

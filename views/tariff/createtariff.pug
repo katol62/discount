@@ -1,0 +1,55 @@
+extends ../layout
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Create Tariff
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='post' action='/organizations/'+oid+'/tariffs/create')
+                    input#owner(type='hidden', name='owner', value=account.id)
+                    input#oid(type='hidden', name='oid', value=oid)
+                    .form-group
+                        label(for='name') Name
+                        input#name.form-control(type='text', name='name', placeholder='Name' value='')
+                    .form-group
+                        label(for='datepicker') Period
+                        #datepicker.input-group.input-daterange
+                            input.form-control(type='text', name='start' value='' placeholder='Start Date')
+                            .input-group-addon to
+                            input.form-control(type='text', name='end' value='' placeholder='End Date')
+                    .form-group
+                        label(for='type') Tariff Type
+                        select#type.form-control.selectpicker(name="type" type="select" )
+                            option(value='' title='--Select--')
+                            each type in types
+                                option(value=type.code data-tokens=type.code) #{type.name}
+                    .form-group
+                        label(for='discount') Disсount
+                        input#discount.form-control(type='number', name='discount', placeholder='Discount' value='')
+
+                    button.btn.btn-default(type='submit') Create
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

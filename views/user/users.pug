@@ -6,8 +6,9 @@ block content
         div.row
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
                 h2 Users
-            div.col-lg-12.margin-top
-                a(href="/users/create") Create User
+            if account.role != 'cashier'
+                div.col-lg-12.margin-top
+                    a(href="/users/create") Create User
             if items
                 div.col-lg-12.margin-top
 
@@ -29,6 +30,9 @@ block content
                                             a(href='/users/edit/' + item.id) Edit
                                             |&nbsp;|&nbsp;
                                             a(onclick='doConfirmDelete('+ item.id+'); return false;' style='cursor:pointer') Delete
+                                            if account.role == 'super'
+                                                | &nbsp;|&nbsp;
+                                                a(href='/organizations/owner/' + item.id) User Organizations
 
 
                 script(type='text/javascript').
