@@ -443,6 +443,7 @@ router.post('/:id/tariffs/create', function(req, res, next) {
     var errors = req.validationErrors();
 
     var user = req.session.user;
+    var oid = req.params.id;
 
     if (errors) {
         return res.render('tariff/createtariff', {
@@ -452,10 +453,8 @@ router.post('/:id/tariffs/create', function(req, res, next) {
             errors: errors
         });
     } else {
-
-        Tariff.create(req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, req.body.organization, req.body.owner, function(err, row){
+        Tariff.create(req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, oid, req.body.owner, function(err, row){
             if (err) {
-                console.log(err);
                 return res.render('tariff/createtariff', {
                     title: 'Create Tariff',
                     account: user,
