@@ -19,7 +19,7 @@ var Organization = {
         })
     },
     getById: function (id, done) {
-        db.query('SELECT * from organization WHERE id = ?', id, function (err, rows) {
+        db.query('SELECT * from organization WHERE id = ?', [id], function (err, rows) {
             if (err) {
                 return done(err)
             }
@@ -55,7 +55,7 @@ var Organization = {
         })
     },
     delete: function (id, done) {
-        db.query('DELETE FROM organization WHERE id = ?', id, function(err, rows) {
+        db.query('DELETE o.*, t.*, tr.*, c.* FROM organization o LEFT JOIN tariff t ON t.organization = o.id LEFT JOIN transh tr on tr.oid=o.id LEFT JOIN cards c ON c.oid=o.id WHERE o.id = ?', id, function(err, rows) {
             if (err) {
                 return done(err);
             }

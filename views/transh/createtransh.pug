@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Create Transh for #{tariff.name}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='post' action='/organizations/'+tariff.organization+'/tariffs/'+tariff.id+'/transhes/create')
+                    input#tid(type='hidden', name='tid', value=tariff.id)
+                    input#oid(type='hidden', name='oid', value=tariff.organization)
+                    input#owner(type='hidden', name='owner', value=account.id)
+                    .form-group
+                        label(for='count') Cards count
+                        input#count.form-control(type='number', name='count', placeholder='Cards count' value='')
+
+                    button.btn.btn-default(type='submit') Generate
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}

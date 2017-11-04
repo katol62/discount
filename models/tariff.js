@@ -11,7 +11,7 @@ var Tariff = {
         })
     },
     getById: function (id, done) {
-        db.query('SELECT * from tariff WHERE id = ?', id, function (err, rows) {
+        db.query('SELECT * from tariff WHERE id = ?', [id], function (err, rows) {
             if (err) {
                 return done(err)
             }
@@ -52,7 +52,7 @@ var Tariff = {
         })
     },
     delete: function (id, done) {
-        db.query('DELETE FROM tariff WHERE id = ?', id, function(err, rows) {
+        db.query('DELETE t.*, tr.*, c.* FROM tariff t LEFT JOIN transh tr on tr.tariff=t.id LEFT JOIN cards c ON c.tid=t.id WHERE t.id = ?', [id], function(err, rows) {
             if (err) {
                 return done(err);
             }

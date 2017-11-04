@@ -5,10 +5,7 @@ block content
     div.container
         div.row
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
-                h2 Tariffs
-            if account.role == 'admin'
-                div.col-lg-12.margin-top
-                    a(href="/organizations/"+oid+"/tariffs/create") Create Tariff
+                h2 Cards
             if items
                 div.col-lg-12.margin-top
 
@@ -16,22 +13,21 @@ block content
 
                         table.table.table-bordered
                             thead
-                                tr: th Name
-                                    th Period
-                                    th Discount
-                                    th Actions
+                                tr: th Id
+                                    th QR Code
+                                    th NFS Code
+                                    th M Code
+                                    th Card Number
+                                    th Transh Number
                             tbody
                                 each item, i in items
                                     tr
-                                        td #{item.name}
-                                        td #{moment(item.start).format("YYYY/MM/DD") + ' - '+moment(item.end).format("YYYY/MM/DD")}
-                                        td #{item.discount}
-                                        td
-                                            a(href='/organizations/'+oid+'/tariffs/'+item.id+'/edit') Edit
-                                            |&nbsp;|&nbsp;
-                                            a(onclick='doConfirmDelete('+ item.id+', "'+item.name+'", '+oid+'); return false;' style='cursor:pointer') Delete
-                                            |&nbsp;|&nbsp;
-                                            a(href='/organizations/'+oid+'/tariffs/'+item.id+'/transhes') Transhes
+                                        td #{item.cid}
+                                        td #{item.qr_code}
+                                        td #{item.nfs_code}
+                                        td #{item.m_code}
+                                        td #{item.card_nb}
+                                        td #{item.transh}
 
 
                 script(type='text/javascript').

@@ -1,0 +1,81 @@
+extends ../layout
+
+block content
+
+    div.container
+        div.row
+            if tariff
+                div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                    h2 Transhes for #{tariff.name}
+                if account.role != 'cashier'
+                    div.col-lg-12.margin-top
+                        a(href="/organizations/"+tariff.organization+"/tariffs/"+tariff.id+"/transhes/create") Create Transh
+                if items.length
+                    div.col-lg-12.margin-top
+
+                        div.table-responsive
+
+                            table.table.table-bordered
+                                thead
+                                    tr: th Organization
+                                        th Tariff
+                                        th Start
+                                        th Count
+                                        th Actions
+                                tbody
+                                    each item, i in items
+                                        tr
+                                            td #{item.org_name}
+                                            td #{item.tariff_name}
+                                            td #{item.start_number}
+                                            td #{item.count}
+                                            td
+                                                a(href='/organizations/'+item.oid+'/tariffs/'+item.tariff+'/transhes/'+item.id+'/cards') List cards
+                                                |&nbsp;|&nbsp;
+                                                a(onclick='doConfirmDelete("'+item.oid+'","'+item.tariff+'","'+item.id+'");return false;' style='cursor:pointer') Delete
+
+
+                    script(type='text/javascript').
+                        function doConfirmDelete(oid, tid, id) {
+                            bootbox.confirm({
+                                message: "Delete Transh?",
+                                buttons: {
+                                    confirm: {
+                                        label: 'Yes',
+                                        className: 'btn-success'
+                                    },
+                                    cancel: {
+                                        label: 'No',
+                                        className: 'btn-danger'
+                                    }
+                                },
+                                callback: function (result) {
+                                    if (result) {
+                                        var xhr = new XMLHttpRequest();
+                                        var url = '/organizations/'+oid+'/tariffs/'+tid+'/transhes/'+id+'/delete';
+                                        xhr.open('DELETE', url, true);
+                                        xhr.setRequestHeader('X-HTTP-Method-Override', 'DELETE');
+                                        xhr.onreadystatechange = function () {
+                                            if (xhr.readyState == XMLHttpRequest.DONE) {
+                                                location.reload();
+                                            }
+                                        }
+                                        xhr.send();
+                                    }
+                                }
+                            });
+                        }
+
+        if message
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.margin-top
+                span.mess.success #{message}
+
+        if error
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.margin-top
+                span.mess.error #{error}
+
+        if errors
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.margin-top
+                ul.error
+                    for error in errors
+                        li.mess.error!= error.msg
