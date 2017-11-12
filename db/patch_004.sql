@@ -1,0 +1,1 @@
+ALTER TABLE `transh` ADD tariff INT(11) NOT NULL AFTER start_number;
