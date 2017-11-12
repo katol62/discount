@@ -25,7 +25,7 @@ var Transh = {
 
             var start = 1;
             var qr = 'SELECT Auto_increment as ai FROM information_schema.tables WHERE table_name = \'cards\' AND table_schema=DATABASE()';
-            var qr1 = 'SELECT `AUTO_INCREMENT` as `ai` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'discount\' AND TABLE_NAME = \'cards\'';
+            //var qr1 = 'SELECT `AUTO_INCREMENT` as `ai` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'discount\' AND TABLE_NAME = \'cards\'';
 
             db.query(qr, function(err, rows){
                 if (err) {
@@ -34,9 +34,9 @@ var Transh = {
                     console.log('============ END OF DETECT auto increment error ==========');
                     return done(err);
                 }
-                console.log('+++++++++++++');
+                console.log('++++++ AUTO INCREMENT +++++++');
                 console.log(rows[0]["ai"]);
-                console.log('+++++++++++++');
+                console.log('++++++++++++++++++++++');
                 start = rows[0]["ai"];
 
                 db.query('INSERT INTO transh (oid, tariff, start_number, count) VALUES (?, ?, ?, ?)', [oid, tariff, start, count], function (err, rows) {
