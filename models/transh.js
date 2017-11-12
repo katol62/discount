@@ -24,17 +24,26 @@ var Transh = {
             }
 
             var start = 1;
-            db.query('SELECT `AUTO_INCREMENT` as `ai` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'discount\' AND TABLE_NAME = \'cards\'', function(err, rows){
+            var qr = 'SELECT Auto_increment as ai FROM information_schema.tables WHERE table_name = \'cards\' AND table_schema=DATABASE()';
+            var qr1 = 'SELECT `AUTO_INCREMENT` as `ai` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'discount\' AND TABLE_NAME = \'cards\'';
+
+            db.query(qr, function(err, rows){
                 if (err) {
+                    console.log('============ DETECT auto increment error ==========');
+                    console.log(err);
+                    console.log('============ END OF DETECT auto increment error ==========');
                     return done(err);
                 }
-                console.log('+++++++++++++')
-                console.log(rows[0]["ai"])
-                console.log('+++++++++++++')
+                console.log('+++++++++++++');
+                console.log(rows[0]["ai"]);
+                console.log('+++++++++++++');
                 start = rows[0]["ai"];
 
                 db.query('INSERT INTO transh (oid, tariff, start_number, count) VALUES (?, ?, ?, ?)', [oid, tariff, start, count], function (err, rows) {
                     if (err) {
+                        console.log('============ INSERT into transh error ==========');
+                        console.log(err);
+                        console.log('============ END OF INSERT into transh error ==========');
                         return done(err)
                     }
                     if (!rows.insertId) {
@@ -63,6 +72,9 @@ var Transh = {
 
                     db.query('INSERT INTO cards (qr_code, card_nb, oid, tid, transh) VALUES ?', [insertArray], function(err, rows){
                         if (err) {
+                            console.log('============ INSERT into cards error ==========');
+                            console.log(err);
+                            console.log('============ END OF INSERT into cards error ==========');
                             return done(err)
                         }
                         return done(null, rows);

@@ -22,6 +22,6 @@ block content
                 if errors
                     ul.error
                         for error in errors
-                            li!= error.msg
+                            li!= error.statusCode
                 if success
                     p #{success.msg}
