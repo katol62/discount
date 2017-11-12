@@ -4,6 +4,11 @@
 CREATE DATABASE discount CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 --
+-- Using created database
+--
+USE discount;
+
+--
 -- Creating table `users`
 --
 DROP TABLE IF EXISTS `users`;
