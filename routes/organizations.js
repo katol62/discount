@@ -3,6 +3,7 @@ var express = require('express');
 var fs = require('fs');
 var csvjson = require('csvjson');
 var path = require("path");
+var formidable = require('formidable');
 
 var config = require('../misc/config');
 var Organization = require('./../models/organization');
@@ -452,7 +453,7 @@ router.get('/:oid/tariffs/create', function(req, res, next) {
 
 });
 //create user post
-router.post('/:id/tariffs/create', function(req, res, next) {
+router.post('/:oid/tariffs/create', function(req, res, next) {
 
     req.checkBody('name', 'Tariff name required').notEmpty();
     req.checkBody('start', 'Start date required').notEmpty();
@@ -463,7 +464,9 @@ router.post('/:id/tariffs/create', function(req, res, next) {
     var errors = req.validationErrors();
 
     var user = req.session.user;
-    var oid = req.params.id;
+    var oid = req.params.oid;
+
+    console.log('oid='+oid+' '+req.params.oid)
 
     if (errors) {
         return res.render('tariff/createtariff', {
@@ -946,21 +949,21 @@ router.get('/:oid/tariffs/:tid/transhes/:id/cards/tocsv', function(req, res, nex
     Organization.getById(oid, function(err, rows){
         if (err) {
             req.session.error = 'Error Organization: '+err.message;
-            //return res.redirect('/organizations');
+            return res.redirect('/organizations');
         }
         if (!rows.length) {
             req.session.error = 'Incorrect Organization Id';
-            //return res.redirect('/organizations');
+            return res.redirect('/organizations');
         } else {
 
             Tariff.getById(tid, function(err, rows) {
                 if (err) {
                     req.session.error = 'Incorrect Tariff: '+err.message;
-                    //return res.redirect('/organizations/'+oid+'/tariffs');
+                    return res.redirect('/organizations/'+oid+'/tariffs');
                 }
                 if (!rows.length) {
                     req.session.error = 'Incorrect Tariff: '+err.message;
-                    //return res.redirect('/organizations/'+oid+'/tariffs');
+                    return res.redirect('/organizations/'+oid+'/tariffs');
                 }
 
                 var tariff = rows[0];
@@ -976,9 +979,6 @@ router.get('/:oid/tariffs/:tid/transhes/:id/cards/tocsv', function(req, res, nex
 
                         var data = rows;
 
-                        console.log('++++ ROWS ++++++++')
-                        console.log(data)
-                        console.log('++++ ROWS ++++++++')
                         var options = {
                             delimiter   : ",",
                             wrap        : false
@@ -989,33 +989,9 @@ router.get('/:oid/tariffs/:tid/transhes/:id/cards/tocsv', function(req, res, nex
                         console.log(csv)
                         console.log('++++ CSV ++++++++')
 
-                        fs.writeFile(path.join(__dirname, '../', 'uploads/transh'+id+'.csv'), csv, function(err) {
-                            if (err) {
-                                console.log('++++ ERROR WRITING CSV ++++++++')
-                                console.log(err)
-                                console.log('++++ ERROR WRITING CSV ++++++++')
-                                req.session.error = 'Error writing CSV: '+err.message;
-                                return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/transhes/'+id+'/cards');
-                            } else {
-                                req.session.message = 'File "transh'+id+'.csv" saved';
-
-                                res.setHeader('Content-disposition', 'attachment; filename=transh'+id+'.csv');
-                                res.set('Content-Type', 'text/csv');
-                                // res.set('Content-Type', 'application/octet-stream');
-                                var file = path.join(__dirname, '../', 'uploads/transh'+id+'.csv')
-                                //var file = __dirname + '/../uploads/transh'+id+'.csv';
-                                console.log(file);
-                                return res.download(file); // Set disposition and send it.
-
-                            }
-
-                            // res.setHeader('Content-disposition', 'attachment; filename=transh'+id+'.csv');
-                            // res.set('Content-Type', 'application/octet-stream');
-                            // //res.set('Content-Type', 'text/csv');
-                            // return res.status(200).send(csv);
-
-                            //return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/transhes/'+id+'/cards');
-                        });
+                        res.setHeader('Content-disposition', 'attachment; filename=transh'+id+'.csv');
+                        res.set('Content-Type', 'text/csv');
+                        res.status(200).send(csv);
 
                     }
                 });
@@ -1024,6 +1000,52 @@ router.get('/:oid/tariffs/:tid/transhes/:id/cards/tocsv', function(req, res, nex
     });
 });
 
+//from csv
+
+router.post('/:oid/tariffs/:tid/transhes/:trid/cards/fromcsv', function(req, res, next){
+
+    var trid = req.params.trid;
+    var oid = req.params.oid;
+    var tid = req.params.tid;
+
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+        // `file` is the name of the <input> field of type `file`
+        var old_path = files.file.path;
+        fs.readFile(old_path, "utf8", function(err, data) {
+
+            console.log(data);
+            console.log(err);
+
+            if (err) {
+
+            }
+
+            var options = {
+                delimiter   : ",",
+                wrap        : false
+            };
+            var csvdata = csvjson.toArray(data, options);
+
+            csvdata.shift();
+            console.log('====== csvdata =========');
+            console.log(csvdata);
+            console.log('====== csvdata =========');
+
+            Transh.updateCards(trid, csvdata, function (err, rows) {
+                if (err) {
+                    req.session.error = 'Error updating cards: '+err.message;
+                } else {
+                    req.session.message = 'Cards updated';
+                }
+                return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/transhes/'+trid+'/cards');
+            })
+
+        });
+    });
+
+
+});
 
 module.exports = router;
 

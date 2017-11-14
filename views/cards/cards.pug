@@ -32,21 +32,11 @@ block content
                                         td #{item.card_nb}
                                         td #{item.transh}
 
-
-                script(type='text/javascript').
-
-                    function toCsv(oid, tariff, transh) {
-                        var xhr = new XMLHttpRequest();
-                        var url = '/organizations/'+oid+'/tariffs/'+tariff+'/transhes/'+transh+'/cards/tocsv';
-                        xhr.open('PUT', url, true);
-                        xhr.setRequestHeader('X-HTTP-Method-Override', 'POST');
-                        xhr.onreadystatechange = function () {
-                            if (xhr.readyState == XMLHttpRequest.DONE) {
-                                location.reload();
-                            }
-                        }
-                        xhr.send();
-                    }
+            if account.role == 'admin'
+                div.col-lg-12.margin-top
+                    form(action='/organizations/'+oid+'/tariffs/'+tariff.id+'/transhes/'+transh+'/cards/fromcsv', enctype='multipart/form-data', method='post')
+                        input(type='file', name='file', accept='.csv')
+                        button.btn.btn-default(type='submit') Import From CSV
 
             if message
                 div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.margin-top

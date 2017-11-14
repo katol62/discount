@@ -84,7 +84,6 @@ var Transh = {
 
             });
         })
-
     },
 
     delete: function(id, done) {
@@ -101,6 +100,29 @@ var Transh = {
             }
             done(null, rows);
         })
+    },
+
+    updateCards: function(trid, cards, done) {
+
+        var queryFinalArray = [];
+        for (var i=0; i<cards.length; i++) {
+            var elm = cards[i];
+            var qr = 'UPDATE cards SET nfs_code="'+elm[2]+'", m_code="'+elm[2]+'" WHERE cid='+elm[0];
+            queryFinalArray.push(qr);
+        }
+        var queryFinal = queryFinalArray.join(';');
+
+        db.query(queryFinal, function(err, rows){
+            console.log('== update cards =====')
+            console.log(err)
+            console.log(rows)
+            console.log('== update cards =====')
+            if (err) {
+                return done(err);
+            }
+            done(null, rows);
+        })
+
     }
 };
 
