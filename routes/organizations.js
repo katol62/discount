@@ -476,7 +476,7 @@ router.post('/:oid/tariffs/create', function(req, res, next) {
             errors: errors
         });
     } else {
-        Tariff.create(req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, oid, req.body.owner, function(err, row){
+        Tariff.create(req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, req.body.oid, req.body.owner, function(err, row){
             if (err) {
                 return res.render('tariff/createtariff', {
                     title: 'Create Tariff',

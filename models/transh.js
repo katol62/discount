@@ -107,8 +107,10 @@ var Transh = {
         var queryFinalArray = [];
         for (var i=0; i<cards.length; i++) {
             var elm = cards[i];
-            var qr = 'UPDATE cards SET nfs_code="'+elm[2]+'", m_code="'+elm[2]+'" WHERE cid='+elm[0];
-            queryFinalArray.push(qr);
+            if (elm[7] === trid) {
+                var qr = 'UPDATE cards SET nfs_code="'+elm[2]+'", m_code="'+elm[2]+'" WHERE cid='+elm[0]+' AND qr_code="'+elm[1]+'"';
+                queryFinalArray.push(qr);
+            }
         }
         var queryFinal = queryFinalArray.join(';');
 

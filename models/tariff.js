@@ -35,6 +35,11 @@ var Tariff = {
         })
     },
     create: function(tname, start, end, type, discount, organization, owner, done) {
+
+        console.log('== CREATE TARIFF ==');
+        console.log('organization='+organization);
+        console.log('== END CREATE TARIFF ==');
+
         db.query('INSERT INTO tariff (name, start, end, type, discount, organization, owner) SELECT ?, ?, ?, ?, ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM tariff WHERE name = ? AND type = ? AND organization = ?) LIMIT 1', [tname, start, end, type, discount, organization, owner, tname, type, organization], function(err, rows) {
             if (err) {
                 return done(err)
