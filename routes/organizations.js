@@ -427,7 +427,7 @@ router.get('/:id/tariffs', function(req, res, next) {
  * Create tariff
  */
 
-//create user form
+//create tariff form
 router.get('/:oid/tariffs/create', function(req, res, next) {
 
     var sessionData = req.session;
@@ -578,6 +578,10 @@ router.put('/:oid/tariffs/:id/edit', function(req, res, next) {
     var parent = req.session.user;
 
     req.checkBody('name', 'Tariff name required').notEmpty();
+    req.checkBody('start', 'Start date required').notEmpty();
+    req.checkBody('end', 'End date required').notEmpty();
+    req.checkBody('type', 'Tariff type required').notEmpty();
+    req.checkBody('discount', 'Discount required').notEmpty();
 
     var errors = req.validationErrors();
     console.log(errors);
@@ -763,6 +767,149 @@ router.delete('/:oid/tariffs/:tid/transhes/:id/delete', function(req, res, next)
 
 });
 
+//edit
+router.get('/:oid/tariffs/:tid/transhes/:trid/edit', function(req, res, next) {
+    var tid = req.params.tid;
+    var oid = req.params.oid;
+    var trid = req.params.trid;
+    var parent = req.session.user;
+
+    Organization.getById(oid, function(err, rows){
+        if (err) {
+            req.session.error = 'Incorrect Organization: '+err.message;
+            return res.redirect('/organizations');
+        }
+        if (!rows.length) {
+            req.session.error = 'Incorrect Organization Id';
+            return res.redirect('/organizations');
+        }
+    });
+
+    Tariff.getById(tid, function(err, rows) {
+        if (err) {
+            req.session.error = 'Incorrect Tariff: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs');
+        }
+        if (!rows.length) {
+            req.session.error = 'Incorrect Tariff: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs');
+        }
+
+        var tariff = rows[0];
+
+        Transh.getById(trid, function(err, rows){
+            if (err) {
+                req.session.error = 'Error getting transh: '+err.message;
+                return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/transhes');
+            } else {
+                if (!rows.length) {
+                    req.session.error = 'Transh not found';
+                    return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/transhes');
+                } else {
+                    return res.render('transh/edittransh', {
+                        title: 'Edit Transh',
+                        account: parent,
+                        types: config.tariffTypes,
+                        services: config.serviceType,
+                        statuses: config.cardStatus,
+                        tid: tid,
+                        oid: oid,
+                        transh: rows[0],
+                        tariff: tariff
+                    });
+                }
+            }
+        })
+
+
+    });
+});
+
+router.put('/:oid/tariffs/:tid/transhes/:trid/edit', function(req, res, next) {
+
+    req.checkBody('service', 'Service type required').notEmpty();
+    req.checkBody('status', 'Card status required').notEmpty();
+    req.checkBody('lifetime', 'Life time required').notEmpty();
+    req.checkBody('servicetime', 'Service time required').notEmpty();
+
+    var errors = req.validationErrors();
+
+    var tid = req.params.tid;
+    var oid = req.params.oid;
+    var parent = req.session.user;
+
+    var transh = req.body;
+
+    Organization.getById(oid, function(err, rows){
+        if (err) {
+            req.session.error = 'Incorrect Organization: '+err.message;
+            return res.redirect('/organizations');
+        }
+        if (!rows.length) {
+            req.session.error = 'Incorrect Organization Id';
+            return res.redirect('/organizations');
+        }
+    });
+
+    Tariff.getById(tid, function(err, rows) {
+        if (err) {
+            req.session.error = 'Incorrect Tariff: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs');
+        }
+        if (!rows.length) {
+            req.session.error = 'Incorrect Tariff: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs');
+        }
+
+        var tariff = rows[0];
+        if (errors) {
+
+            return res.render('transh/edittransh', {
+                title: 'Edit Transh',
+                account: parent,
+                tid: tid,
+                oid: oid,
+                tariff: tariff,
+                types: config.tariffTypes,
+                services: config.serviceType,
+                statuses: config.cardStatus,
+                transh: transh,
+                errors: errors
+            });
+        } else {
+            Transh.updateCardsForTransh(req.body, function(err, rows){
+                if (err) {
+                    return res.render('transh/edittransh', {
+                        title: 'Create Transh',
+                        account: parent,
+                        tid: tid,
+                        oid: oid,
+                        tariff: tariff,
+                        types: config.tariffTypes,
+                        services: config.serviceType,
+                        statuses: config.cardStatus,
+                        transh: transh,
+                        errors: err
+                    });
+                }
+
+                console.log('++++')
+                console.log(rows)
+                console.log('++++')
+
+                if (!rows.affectedRows) {
+                    req.session.error = 'Incorrect Transh';
+                }
+                req.session.message = 'Transh has been updated';
+                return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/transhes');
+            })
+
+        }
+
+    });
+
+});
+
 //create
 router.get('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
     var tid = req.params.tid;
@@ -791,10 +938,14 @@ router.get('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
         }
 
         var tariff = rows[0];
+        console.log(tariff);
 
         return res.render('transh/createtransh', {
             title: 'Create Transh',
             account: parent,
+            types: config.tariffTypes,
+            services: config.serviceType,
+            statuses: config.cardStatus,
             tid: tid,
             oid: oid,
             tariff: tariff
@@ -806,6 +957,11 @@ router.get('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 
     req.checkBody('count', 'Discount required').notEmpty();
+    req.checkBody('type', 'Card type required').notEmpty();
+    req.checkBody('service', 'Service type required').notEmpty();
+    req.checkBody('status', 'Card status required').notEmpty();
+    req.checkBody('lifetime', 'Life time required').notEmpty();
+    req.checkBody('servicetime', 'Service time required').notEmpty();
 
     var errors = req.validationErrors();
 
@@ -836,17 +992,21 @@ router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 
         var tariff = rows[0];
         if (errors) {
+
             return res.render('transh/createtransh', {
                 title: 'Create Transh',
                 account: parent,
                 tid: tid,
                 oid: oid,
                 tariff: tariff,
+                types: config.tariffTypes,
+                services: config.serviceType,
+                statuses: config.cardStatus,
                 errors: errors
             });
         } else {
-            var obj = {oid: oid, count: req.body.count, tariff: tid}
-            Transh.generateCards(obj, function(err, rows){
+            var obj = {oid: oid, count: req.body.count, tariff: tid, type: req.body.type};
+            Transh.generateCards(req.body, function(err, rows){
                 if (err) {
                     return res.render('transh/createtransh', {
                         title: 'Create Transh',
@@ -854,6 +1014,9 @@ router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
                         tid: tid,
                         oid: oid,
                         tariff: tariff,
+                        types: config.tariffTypes,
+                        services: config.serviceType,
+                        statuses: config.cardStatus,
                         errors: err
                     });
                 }
@@ -870,7 +1033,83 @@ router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 
 });
 
-//list cards
+//list cards for tariff
+router.get('/:oid/tariffs/:tid/cards', function(req, res, next) {
+
+    var parent = req.session.user;
+
+    var oid = req.params.oid;
+    var tid = req.params.tid;
+
+    var session_message = req.session.message ? req.session.message : null;
+    req.session.message = null;
+    var session_error = req.session.error ? req.session.error : null;
+    req.session.error = null;
+
+    Organization.getById(oid, function(err, rows){
+        if (err) {
+            req.session.error = 'Error Organization: '+err.message;
+            return res.redirect('/organizations');
+        }
+        if (!rows.length) {
+            req.session.error = 'Incorrect Organization Id';
+            return res.redirect('/organizations');
+        }
+    });
+
+    Tariff.getById(tid, function(err, rows) {
+        if (err) {
+            req.session.error = 'Incorrect Tariff: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs');
+        }
+        if (!rows.length) {
+            req.session.error = 'Incorrect Tariff: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs');
+        }
+
+        var tariff = rows[0];
+        Card.getByTariffId(tid, function (err, rows)  {
+
+            console.log('----- rows -----');
+            console.log(rows);
+            console.log('----- rows -----');
+
+            if (err) {
+                return res.render('cards/cards', {
+                    title: 'Cards',
+                    account: parent,
+                    oid: oid,
+                    types: config.tariffTypes,
+                    tariff: tariff,
+                    //transh: null,
+                    message: session_message,
+                    error: session_error,
+                    errors: err
+                });
+
+            } else {
+                var errors = [];
+                if (rows.length == 0) {
+                    errors = [{msg:"No cards found"}]
+                }
+                return res.render('cards/cards', {
+                    title: 'Cards',
+                    account: parent,
+                    oid: oid,
+                    types: config.tariffTypes,
+                    tariff: tariff,
+                    transh: null,
+                    message: session_message,
+                    error: session_error,
+                    errors: errors,
+                    items: rows
+                });
+            }
+        });
+    });
+});
+
+//list cards for transh
 router.get('/:oid/tariffs/:tid/transhes/:id/cards', function(req, res, next) {
 
     var parent = req.session.user;

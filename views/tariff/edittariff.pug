@@ -6,13 +6,13 @@ block content
 
         div.row
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
-                h2 Edit #{tariff.name}
+                h2 Edit #{tariff.name+' '+account.role}
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
-                form(method='post' action='/organizations/'+oid+'/tariffs/edit/'+tariff.id)
+                form(method='post' action='/organizations/'+oid+'/tariffs/'+tariff.id+'/edit')
                     input#_method(type='hidden', name='_method', value='PUT')
                     input#id(type='hidden', name='id', value=tariff.id)
                     input#organization(type='hidden', name='organization', value=oid)
-                    input#owner(type='hidden', name='owner', value=account.id)
+                    input#owner(type='hidden', name='owner', value=tariff.owner)
                     .form-group
                         label(for='name') Name
                         input#name.form-control(type='text', name='name', placeholder='Name' value=tariff.name)
@@ -33,6 +33,12 @@ block content
                     .form-group
                         label(for='discount') Disсount
                         input#discount.form-control(type='number', name='discount', placeholder='Discount' value=tariff.discount)
+                    if account.role == 'super'
+                        .form-group
+                            .form-check.form-check-inline
+                                label.form-check-label
+                                    input#soft.form-check-input(type='checkbox', name='soft' value='')
+                                    |  Soft Cards Tariff
 
                     button.btn.btn-default(type='submit') Update
 

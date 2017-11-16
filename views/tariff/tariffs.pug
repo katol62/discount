@@ -31,6 +31,8 @@ block content
                                             |&nbsp;|&nbsp;
                                             a(onclick='doConfirmDelete('+ item.id+', "'+item.name+'", '+oid+'); return false;' style='cursor:pointer') Delete
                                             |&nbsp;|&nbsp;
+                                            a(href='/organizations/' + oid + '/tariffs/' + item.id + '/cards') List Cards
+                                            | &nbsp;|&nbsp;
                                             a(href='/organizations/'+oid+'/tariffs/'+item.id+'/transhes') Transhes
 
 

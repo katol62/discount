@@ -5,6 +5,7 @@ module.exports = {
     'menuUnsigned': [{label: "Signin", link: '/signin'}],
     'menuSigned': [{label: "Users", link: '/users'}, {label: "Signout", link: '/signout'}],
     'roles': ['super', 'admin', 'cashier'],
-    'tariffTypes': [{code:'adult', name:'Adult'},{code:'child',name:'Child'},{code:'other', name:'Other'}]
-
+    'tariffTypes': [{code:'adult', name:'Adult'},{code:'child',name:'Child'},{code:'other', name:'Other'}],
+    'cardStatus': [{code:'published', name: 'Published'},{code:'sold', name: 'Sold'},{code:'activated', name: 'Activated'},{code:'overdue', name: 'Overdue'},{code:'blocked', name: 'Blocked'}],
+    'serviceType': [{code: 'discount', name: 'Discount'},{code: 'pass', name: 'Pass'}]
 };

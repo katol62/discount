@@ -6,10 +6,14 @@ block content
         div.row
             div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
                 h2 Cards
-            if account.role == 'admin'
-                div.col-lg-12.margin-top
-                    a(href='/organizations/'+oid+'/tariffs/'+tariff.id+'/transhes/'+transh+'/cards/tocsv') Export to CSV
-            if items
+            if items && items.length
+                if account.role == 'admin' && transh
+                    div.col-lg-12.margin-top
+                        if transh
+                            a(href='/organizations/' + oid + '/tariffs/' + tariff.id + '/transhes/' + transh + '/cards/tocsv') Export to CSV
+                        else
+                            a(href='/organizations/' + oid + '/tariffs/' + tariff.id + '/cards/tocsv') Export to CSV
+
                 div.col-lg-12.margin-top
 
                     div.table-responsive
@@ -22,6 +26,13 @@ block content
                                     th M Code
                                     th Card Number
                                     th Transh Number
+                                    th Card Type
+                                    th Service Type
+                                    th Card status
+                                    th Life time
+                                    th Service time
+                                    th Test Mark
+
                             tbody
                                 each item, i in items
                                     tr
@@ -31,12 +42,17 @@ block content
                                         td #{item.m_code}
                                         td #{item.card_nb}
                                         td #{item.transh}
-
-            if account.role == 'admin'
-                div.col-lg-12.margin-top
-                    form(action='/organizations/'+oid+'/tariffs/'+tariff.id+'/transhes/'+transh+'/cards/fromcsv', enctype='multipart/form-data', method='post')
-                        input(type='file', name='file', accept='.csv')
-                        button.btn.btn-default(type='submit') Import From CSV
+                                        td #{item.type}
+                                        td #{item.service}
+                                        td #{item.status}
+                                        td #{item.lifetime}
+                                        td #{item.servicetime}
+                                        td #{item.test}
+                if account.role == 'admin' && transh
+                    div.col-lg-12.margin-top
+                        form(action='/organizations/'+oid+'/tariffs/'+tariff.id+'/transhes/'+transh+'/cards/fromcsv', enctype='multipart/form-data', method='post')
+                            input(type='file', name='file', accept='.csv')
+                            button.btn.btn-default(type='submit') Import From CSV
 
             if message
                 div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.margin-top

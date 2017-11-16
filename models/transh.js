@@ -13,10 +13,27 @@ var Transh = {
         })
     },
 
+    getById: function(trid, done) {
+        db.query('select c.oid, c.tid, c.transh, c.type, c.service, c.status, c.lifetime, c.servicetime, t.start_number, t.count from cards c left join transh t on c.transh=t.id where t.id = ?', [trid], function(err,rows){
+            if (err) {
+                return done(err);
+            }
+            done(null, rows)
+        })
+    },
+
     generateCards: function(obj, done) {
+
         var oid = Number(obj.oid);
         var count = Number(obj.count);
-        var tariff = Number(obj.tariff);
+        var tariff = Number(obj.tid);
+
+        var type = obj.type;
+        var service = obj.service;
+        var status = obj.status;
+
+        var lifetime = Number(obj.lifetime);
+        var servicetime = Number(obj.servicetime);
 
         db.query('SELECT cid from cards ORDER BY cid DESC LIMIT 1', function (err, rows) {
             if (err) {
@@ -67,10 +84,10 @@ var Transh = {
                         var card_number = nb_oid+nb_tid+nb_nbr;
                         var qr = uniqid();
 
-                        insertArray.push([qr, card_number, oid, tariff, transh]);
+                        insertArray.push([qr, card_number, oid, tariff, transh, type, service, status, lifetime, servicetime]);
                     }
 
-                    db.query('INSERT INTO cards (qr_code, card_nb, oid, tid, transh) VALUES ?', [insertArray], function(err, rows){
+                    db.query('INSERT INTO cards (qr_code, card_nb, oid, tid, transh, type, service, status, lifetime, servicetime) VALUES ?', [insertArray], function(err, rows){
                         if (err) {
                             console.log('============ INSERT into cards error ==========');
                             console.log(err);
@@ -84,6 +101,32 @@ var Transh = {
 
             });
         })
+    },
+
+    updateCardsForTransh: function(obj, done) {
+        var oid = Number(obj.oid);
+        var count = Number(obj.count);
+        var tariff = Number(obj.tid);
+
+        var trid = obj.trid;
+        var type = obj.type;
+        var service = obj.service;
+        var status = obj.status;
+
+        console.log('+++ UPDATE CARDS ++++')
+        console.log(obj)
+        console.log('+++ UPDATE CARDS ++++')
+
+        var lifetime = Number(obj.lifetime);
+        var servicetime = Number(obj.servicetime);
+
+        db.query('UPDATE cards set type = ?, service = ?, status = ?, lifetime = ?, servicetime = ? WHERE transh = ?', [type, service, status, lifetime, servicetime, trid], function(err, rows){
+            if (err) {
+                return done(err);
+            }
+            done(null, rows);
+        })
+
     },
 
     delete: function(id, done) {
