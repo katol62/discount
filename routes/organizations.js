@@ -1287,7 +1287,7 @@ router.post('/:oid/tariffs/:tid/transhes/:trid/cards/fromcsv', function(req, res
 router.put('/:oid/tariffs/:tid/cards/:cid/mark', function(req, res, next){
 
     var oid = req.params.oid;
-    var tid = req.params.oid;
+    var tid = req.params.tid;
     var cid = req.params.cid;
 
     console.log('oid='+oid);
@@ -1311,15 +1311,12 @@ router.put('/:oid/tariffs/:tid/cards/:cid/mark', function(req, res, next){
             return res.redirect('/organizations/'+oid+'/tariffs');
         }
         if (!rows.length) {
-            //req.session.error = 'Incorrect Tariff';
+            req.session.error = 'Incorrect Tariff';
             return res.redirect('/organizations/'+oid+'/tariffs');
         }
     });
 
     Card.toggleTest(cid, function (err, rows){
-        console.log('--- ERROR --------');
-        console.log(err);
-        console.log('--- ERROR -------');
         if (err) {
             return res.status(500);
         }
