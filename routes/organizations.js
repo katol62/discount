@@ -1287,44 +1287,21 @@ router.post('/:oid/tariffs/:tid/transhes/:trid/cards/fromcsv', function(req, res
 router.put('/:oid/tariffs/:tid/cards/:cid/mark', function(req, res, next){
 
     var oid = req.params.oid;
-    var tid = req.params.tid;
+    var tid = req.params.oid;
     var cid = req.params.cid;
 
-    console.log('oid='+oid);
-    console.log('tid='+tid);
-    console.log('cid='+cid);
-
-    Organization.getById(oid, function(err, rows){
-        if (err) {
-            req.session.error = 'Incorrect Organization: '+err.message;
-            return res.redirect('/organizations');
-        }
-        if (!rows.length) {
-            req.session.error = 'Incorrect Organization Id';
-            return res.redirect('/organizations');
-        }
-    });
-
-    Tariff.getById(tid, function(err, rows) {
-        if (err) {
-            req.session.error = 'Incorrect Tariff: '+err.message;
-            return res.redirect('/organizations/'+oid+'/tariffs');
-        }
-        if (!rows.length) {
-            req.session.error = 'Incorrect Tariff';
-            return res.redirect('/organizations/'+oid+'/tariffs');
-        }
-    });
-
     Card.toggleTest(cid, function (err, rows){
+        console.log('--- ERROR --------');
+        console.log(err);
+        console.log(rows);
+        console.log('--- ERROR -------');
         if (err) {
-            return res.status(500);
+            return res.status(500).send(err);
         }
-        return res.status(200);
+        return res.status(200).send('ok');
     })
 
 });
-
 
 
 module.exports = router;
