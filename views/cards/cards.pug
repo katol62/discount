@@ -48,6 +48,8 @@ block content
                                         td #{item.lifetime}
                                         td #{item.servicetime}
                                         td #{item.test}
+                                            |&nbsp;
+                                            a(onclick='doToggle('+oid+','+tariff.id+','+item.cid+'); return false;' style='cursor:pointer') Toggle
                 if account.role == 'admin' && transh
                     div.col-lg-12.margin-top
                         form(action='/organizations/'+oid+'/tariffs/'+tariff.id+'/transhes/'+transh+'/cards/fromcsv', enctype='multipart/form-data', method='post')
@@ -67,3 +69,16 @@ block content
                     ul.error
                         for error in errors
                             li.mess.error!= error.msg
+        script(type='text/javascript').
+            function doToggle(oid, tid, id) {
+                var xhr = new XMLHttpRequest();
+                var url = '/organizations/'+oid+'/tariffs/'+tid+'/cards/'+id+'/mark';
+                xhr.open('PUT', url, true);
+                xhr.setRequestHeader('X-HTTP-Method-Override', 'PUT');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == XMLHttpRequest.DONE) {
+                        location.reload();
+                    }
+                }
+                xhr.send();
+            }

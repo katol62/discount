@@ -15,8 +15,6 @@ var User = {
         console.log(roles+" == "+id);
 
         db.query('SELECT * from users WHERE parent = ? AND role IN ( ? ) ', [id, roles], function(err, rows) {
-            console.log('err: '+err);
-            console.log('rows: '+rows);
             if (err) {
                 return done(err)
             }

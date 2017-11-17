@@ -20,8 +20,17 @@ var Card = {
         })
     },
 
-    deleteByTranshId: function(trid) {
+    deleteByTranshId: function(trid, done) {
         db.query('DELETE FROM cards WHERE transh = ?', [id], function(err, rows){
+            if (err) {
+                return done(err);
+            }
+            done(null, rows);
+        })
+    },
+
+    toggleTest: function (cid, done) {
+        db.query('update cards SET test = IF(test = \'0\', \'1\', \'0\') where cid = ?', [cid], function(err, rows){
             if (err) {
                 return done(err);
             }
