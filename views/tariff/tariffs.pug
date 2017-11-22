@@ -24,7 +24,10 @@ block content
                                 each item, i in items
                                     tr
                                         td #{item.name}
-                                        td #{moment(item.start).format("YYYY/MM/DD") + ' - '+moment(item.end).format("YYYY/MM/DD")}
+                                        if item.start && item.start != '0000-00-00'
+                                            td #{moment(item.start).format("YYYY/MM/DD") + ' - '+moment(item.end).format("YYYY/MM/DD")}
+                                        else
+                                            td Unlimited
                                         td #{item.discount}
                                         td
                                             a(href='/organizations/'+oid+'/tariffs/'+item.id+'/edit') Edit

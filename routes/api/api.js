@@ -3,11 +3,13 @@ var api = express();
 
 var users = require('./apiuser');
 var auth = require('./apiauth');
+var cards = require('./apicard');
 
 var jwt = require('jsonwebtoken');
 
 api.use('/users', users);
 api.use('/auth', auth);
+api.use('/cards', cards);
 
 api.use(function(req, res, next) {
 

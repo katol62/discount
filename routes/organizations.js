@@ -405,6 +405,7 @@ router.get('/:id/tariffs', function(req, res, next) {
                         errors: [{msg:"Tariffs not found"}]
                     });
                 } else {
+
                     return res.render('tariff/tariffs', {
                         title: 'Tariffs',
                         account: user,
@@ -578,13 +579,15 @@ router.put('/:oid/tariffs/:id/edit', function(req, res, next) {
     var parent = req.session.user;
 
     req.checkBody('name', 'Tariff name required').notEmpty();
-    req.checkBody('start', 'Start date required').notEmpty();
-    req.checkBody('end', 'End date required').notEmpty();
     req.checkBody('type', 'Tariff type required').notEmpty();
     req.checkBody('discount', 'Discount required').notEmpty();
 
     var errors = req.validationErrors();
     console.log(errors);
+
+    console.log('+++++ tariff edit +++')
+    console.log(req.body)
+    console.log('+++++ tariff edit +++')
 
     var tariff = req.body;
     var id = req.body.id;
@@ -601,7 +604,7 @@ router.put('/:oid/tariffs/:id/edit', function(req, res, next) {
         });
     } else {
 
-        Tariff.update(id, req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, req.body.owner, function(err, result){
+        Tariff.update(id, req.body, function(err, result){
 
             if (err) {
                 return res.render('tariff/edittariff', {

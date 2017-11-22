@@ -47,9 +47,22 @@ var Tariff = {
             done(null, rows)
         })
     },
-    update: function(id, tname, start, end, type, discount, owner, done) {
+    update: function(id, body, done) {
 
-        db.query('UPDATE tariff SET name = ?, start = ?, end = ?, type = ?, discount= ?, owner = ? WHERE id = ?', [tname, start, end, type, discount, owner, id], function(err, rows) {
+        var tname = body.name;
+        var start = body.start ? body.start : null;
+        var end = body.end ? body.end : null;
+        var type = body.type;
+        var discount = body.discount;
+        var owner = body.owner;
+        var soft = body.soft ? '1' : '0';
+
+        console.log('---')
+        console.log(body)
+        console.log(soft)
+        console.log('---')
+
+        db.query('UPDATE tariff SET name = ?, start = ?, end = ?, type = ?, discount= ?, owner = ?, soft = ? WHERE id = ?', [tname, start, end, type, discount, owner, soft, id], function(err, rows) {
             if (err) {
                 return done(err)
             }

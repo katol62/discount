@@ -19,9 +19,14 @@ block content
                     .form-group
                         label(for='datepicker') Period
                         #datepicker.input-group.input-daterange
-                            input.form-control(type='text', name='start' placeholder='Start Date' value=moment(tariff.start).format("YYYY-MM-DD"))
-                            .input-group-addon to
-                            input.form-control(type='text', name='end' placeholder='End Date' value=moment(tariff.end).format("YYYY-MM-DD"))
+                            if tariff.start && tariff.start != '0000-00-00'
+                                input.form-control(type='text', name='start' placeholder='Start Date' value=moment(tariff.start).format("YYYY-MM-DD"))
+                                .input-group-addon to
+                                input.form-control(type='text', name='end' placeholder='End Date' value=moment(tariff.end).format("YYYY-MM-DD"))
+                            else
+                                input.form-control(type='text', name='start' value='' placeholder='Start Date')
+                                .input-group-addon to
+                                input.form-control(type='text', name='end' value='' placeholder='End Date')
                     .form-group
                         label(for='type') Tariff Type
                         select#type.form-control.selectpicker(name="type" type="select" )
@@ -37,7 +42,7 @@ block content
                         .form-group
                             .form-check.form-check-inline
                                 label.form-check-label
-                                    input#soft.form-check-input(type='checkbox', name='soft' value='')
+                                    input#soft.form-check-input(type='checkbox', name='soft' checked=tariff.soft=='1')
                                     |  Soft Cards Tariff
 
                     button.btn.btn-default(type='submit') Update

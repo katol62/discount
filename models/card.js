@@ -36,6 +36,22 @@ var Card = {
             }
             done(null, rows);
         })
+    },
+
+    addSoftToTariffName: function(qrcode, tname, done) {
+
+        db.query('SELECT * from tariff WHERE name = ?', [tname], function(err, rows){
+            if (err) {
+                return done(err);
+            }
+            var tariff = rows[0];
+            db.query('INSERT INTO cards (qr_code, oid, tid) SELECT ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM cards WHERE qr_code = ? AND oid = ? AND tid = ?) LIMIT 1', [qrcode, tariff.organization, tariff.id, qrcode, tariff.organization, tariff.id], function(err, rows){
+                if (err) {
+                    return done(err);
+                }
+                done(null, rows);
+            })
+        })
     }
 
 };
