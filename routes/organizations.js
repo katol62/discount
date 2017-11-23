@@ -457,15 +457,13 @@ router.get('/:oid/tariffs/create', function(req, res, next) {
 router.post('/:oid/tariffs/create', function(req, res, next) {
 
     req.checkBody('name', 'Tariff name required').notEmpty();
-    req.checkBody('start', 'Start date required').notEmpty();
-    req.checkBody('end', 'End date required').notEmpty();
     req.checkBody('type', 'Tariff type required').notEmpty();
     req.checkBody('discount', 'Discount required').notEmpty();
 
     var errors = req.validationErrors();
 
     var user = req.session.user;
-    var oid = req.params.oid;
+    var oid = req.body.oid;
 
     console.log('oid='+oid+' '+req.params.oid)
 
@@ -477,7 +475,7 @@ router.post('/:oid/tariffs/create', function(req, res, next) {
             errors: errors
         });
     } else {
-        Tariff.create(req.body.name, req.body.start, req.body.end, req.body.type, req.body.discount, req.body.oid, req.body.owner, function(err, row){
+        Tariff.create(req.body.name, (req.body.start ? req.body.start : '0000-00-00'), (req.body.end ? req.body.end : '0000-00-00'), req.body.type, req.body.discount, req.body.oid, req.body.owner, function(err, row){
             if (err) {
                 return res.render('tariff/createtariff', {
                     title: 'Create Tariff',
