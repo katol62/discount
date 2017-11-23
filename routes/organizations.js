@@ -475,7 +475,7 @@ router.post('/:oid/tariffs/create', function(req, res, next) {
             errors: errors
         });
     } else {
-        Tariff.create(req.body.name, (req.body.start ? req.body.start : '0000-00-00'), (req.body.end ? req.body.end : '0000-00-00'), req.body.type, req.body.discount, req.body.oid, req.body.owner, function(err, row){
+        Tariff.create(req.body.name, (req.body.start ? req.body.start : '0000-00-00'), (req.body.end ? req.body.end : '0000-00-00'), req.body.type, req.body.discount, Number(req.body.oid), Number(req.body.owner), function(err, row){
             if (err) {
                 return res.render('tariff/createtariff', {
                     title: 'Create Tariff',
@@ -966,8 +966,8 @@ router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 
     var errors = req.validationErrors();
 
-    var tid = req.params.tid;
-    var oid = req.params.oid;
+    var tid = Number(req.body.tid);
+    var oid = Number(req.body.oid);
     var parent = req.session.user;
 
     Organization.getById(oid, function(err, rows){
@@ -1292,10 +1292,6 @@ router.put('/:oid/tariffs/:tid/cards/:cid/mark', function(req, res, next){
     var cid = req.params.cid;
 
     Card.toggleTest(cid, function (err, rows){
-        console.log('--- ERROR --------');
-        console.log(err);
-        console.log(rows);
-        console.log('--- ERROR -------');
         if (err) {
             return res.status(500).send(err);
         }
