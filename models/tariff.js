@@ -57,11 +57,6 @@ var Tariff = {
         var owner = body.owner;
         var soft = body.soft ? '1' : '0';
 
-        console.log('---')
-        console.log(body)
-        console.log(soft)
-        console.log('---')
-
         db.query('UPDATE tariff SET name = ?, start = ?, end = ?, type = ?, discount= ?, owner = ?, soft = ? WHERE id = ?', [tname, start, end, type, discount, owner, soft, id], function(err, rows) {
             if (err) {
                 return done(err)

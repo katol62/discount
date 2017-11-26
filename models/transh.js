@@ -29,7 +29,8 @@ var Transh = {
         var tariff = Number(obj.tid);
 
         var type = obj.type;
-        var service = obj.service;
+        var discount = Number(obj.discount);
+        var pass = obj.pass;
         var status = obj.status;
 
         var lifetime = Number(obj.lifetime);
@@ -42,7 +43,6 @@ var Transh = {
 
             var start = 1;
             var qr = 'SELECT Auto_increment as ai FROM information_schema.tables WHERE table_name = \'cards\' AND table_schema=DATABASE()';
-            //var qr1 = 'SELECT `AUTO_INCREMENT` as `ai` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'discount\' AND TABLE_NAME = \'cards\'';
 
             db.query(qr, function(err, rows){
                 if (err) {
@@ -84,10 +84,10 @@ var Transh = {
                         var card_number = nb_oid+nb_tid+nb_nbr;
                         var qr = uniqid();
 
-                        insertArray.push([qr, card_number, oid, tariff, transh, type, service, status, lifetime, servicetime]);
+                        insertArray.push([qr, card_number, oid, tariff, transh, type, discount, pass, status, lifetime, servicetime]);
                     }
 
-                    db.query('INSERT INTO cards (qr_code, card_nb, oid, tid, transh, type, service, status, lifetime, servicetime) VALUES ?', [insertArray], function(err, rows){
+                    db.query('INSERT INTO cards (qr_code, card_nb, oid, tid, transh, type, discount, pass, status, lifetime, servicetime) VALUES ?', [insertArray], function(err, rows){
                         if (err) {
                             console.log('============ INSERT into cards error ==========');
                             console.log(err);
@@ -110,7 +110,8 @@ var Transh = {
 
         var trid = obj.trid;
         var type = obj.type;
-        var service = obj.service;
+        var discount = Number(obj.discount);
+        var pass = obj.pass;
         var status = obj.status;
 
         console.log('+++ UPDATE CARDS ++++')
@@ -120,7 +121,7 @@ var Transh = {
         var lifetime = Number(obj.lifetime);
         var servicetime = Number(obj.servicetime);
 
-        db.query('UPDATE cards set type = ?, service = ?, status = ?, lifetime = ?, servicetime = ? WHERE transh = ?', [type, service, status, lifetime, servicetime, trid], function(err, rows){
+        db.query('UPDATE cards set type = ?, discount = ?, pass = ?, status = ?, lifetime = ?, servicetime = ? WHERE transh = ?', [type, discount, pass, status, lifetime, servicetime, trid], function(err, rows){
             if (err) {
                 return done(err);
             }

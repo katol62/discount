@@ -1,0 +1,49 @@
+extends ../layout
+
+block content
+
+    div.container
+
+        div.row
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                h2 Edit Card #{card.card_nb != '' ? card.card_nb : card.cid}
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12
+                form(method='POST' action='/organizations/'+oid+'/tariffs/'+tid+'/cards/'+card.cid)
+                    input#_method(type='hidden', name='_method', value='PUT')
+                    input#oid(type='hidden', name='oid', value=oid)
+                    input#tid(type='hidden', name='tid', value=tid)
+                    input#cid(type='hidden', name='cid', value=cid)
+                    .form-group
+                        label(for='discount') Discount
+                        input#discount.form-control(type='number', name='discount', placeholder='Discount' value=card.discount)
+                    .form-group
+                        label(for='type') Card Type
+                        select#type.form-control.selectpicker(name="type" type="select" )
+                            each type in types
+                                option(value=type.code selected=type.code == card.type data-tokens=type.code) #{type.name}
+                    .form-group
+                        label(for='pass') Pass
+                        select#pass.form-control.selectpicker(name="pass" type="select" )
+                            each pass in passes
+                                option(value=pass.code selected=pass.code == card.pass data-tokens=pass.code) #{pass.name}
+                    .form-group
+                        label(for='status') Card Status
+                        select#status.form-control.selectpicker(name="status" type="select" )
+                            each status in statuses
+                                option(value=status.code selected=status.code == card.status data-tokens=status.code) #{status.name}
+                    .form-group
+                        label(for='lifetime') Life Time
+                        input#lifetime.form-control(type='number', name='lifetime', placeholder='Life Time' value=card.lifetime)
+                    .form-group
+                        label(for='servicetime') Service Time
+                        input#servicetime.form-control(type='number', name='servicetime', placeholder='Service Time' value=card.servicetime)
+
+                    button.btn.btn-default(type='submit') Update
+
+            div.col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-12.login-form-pre
+                if errors
+                    ul.error
+                        for error in errors
+                            li!= error.msg
+                if success
+                    p #{success.msg}

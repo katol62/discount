@@ -13,25 +13,19 @@ block content
                     input#tid(type='hidden', name='tid', value=tariff.id)
                     input#oid(type='hidden', name='oid', value=tariff.organization)
                     input#trid(type='hidden', name='trid', value=transh.transh)
+                    input#discount(type='hidden', name='discount', value=tariff.discount)
+                    input#type(type='hidden', name='type', value=tariff.type)
                     .form-group
                         label(for='count') Cards count
                         input#count.form-control(type='number', name='count', placeholder='Cards count' disabled value=transh.count)
                     .form-group
                         label(for='count') Start number
                         input#start.form-control(type='number', name='start', placeholder='Start number' disabled value=transh.start_number)
-
                     .form-group
-                        label(for='type') Card Type
-                        select#type.form-control.selectpicker(name="type" type="select" )
-                            each type in types
-                                option(value=type.code selected=type.code==transh.type data-tokens=type.code) #{type.name}
-                    .form-group
-                        label(for='service') Service Type
-                        .form-check.form-check-inline
-                            each service in services
-                                label.form-check-label
-                                    input.form-check-input(id='service-' + service.code, type='radio', checked=service.code == transh.service name='service', value=service.code)
-                                    | &nbsp;#{service.name}&nbsp;&nbsp;
+                        label(for='pass') Pass
+                        select#pass.form-control.selectpicker(name="pass" type="select" )
+                            each pass in passes
+                                option(value=pass.code selected=pass.code == transh.pass data-tokens=pass.code) #{pass.name}
                     .form-group
                         label(for='status') Card Status
                         select#status.form-control.selectpicker(name="status" type="select" )

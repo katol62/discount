@@ -7,5 +7,5 @@ module.exports = {
     'roles': ['super', 'admin', 'cashier'],
     'tariffTypes': [{code:'adult', name:'Adult'},{code:'child',name:'Child'},{code:'other', name:'Other'}],
     'cardStatus': [{code:'published', name: 'Published'},{code:'sold', name: 'Sold'},{code:'activated', name: 'Activated'},{code:'overdue', name: 'Overdue'},{code:'blocked', name: 'Blocked'}],
-    'serviceType': [{code: 'discount', name: 'Discount'},{code: 'pass', name: 'Pass'}]
+    'passType': [{code: '0', name: 'Not a pass'},{code: '1', name: '1 Day'},{code: '3', name: '3 Days'},{code: '6', name: '6 Days'}]
 };

@@ -11,6 +11,8 @@ var Tariff = require('./../models/tariff');
 var Transh = require('./../models/transh');
 var Card = require('./../models/card');
 
+var globals = require('./../misc/globals');
+
 var router = express.Router();
 
 var methodOverride = require('method-override');
@@ -828,7 +830,6 @@ router.get('/:oid/tariffs/:tid/transhes/:trid/edit', function(req, res, next) {
 
 router.put('/:oid/tariffs/:tid/transhes/:trid/edit', function(req, res, next) {
 
-    req.checkBody('service', 'Service type required').notEmpty();
     req.checkBody('status', 'Card status required').notEmpty();
     req.checkBody('lifetime', 'Life time required').notEmpty();
     req.checkBody('servicetime', 'Service time required').notEmpty();
@@ -945,8 +946,8 @@ router.get('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
             title: 'Create Transh',
             account: parent,
             types: config.tariffTypes,
-            services: config.serviceType,
             statuses: config.cardStatus,
+            passes: config.passType,
             tid: tid,
             oid: oid,
             tariff: tariff
@@ -957,9 +958,7 @@ router.get('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 
 router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
 
-    req.checkBody('count', 'Discount required').notEmpty();
-    req.checkBody('type', 'Card type required').notEmpty();
-    req.checkBody('service', 'Service type required').notEmpty();
+    req.checkBody('count', 'Cards number required').notEmpty();
     req.checkBody('status', 'Card status required').notEmpty();
     req.checkBody('lifetime', 'Life time required').notEmpty();
     req.checkBody('servicetime', 'Service time required').notEmpty();
@@ -1001,8 +1000,8 @@ router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
                 oid: oid,
                 tariff: tariff,
                 types: config.tariffTypes,
-                services: config.serviceType,
                 statuses: config.cardStatus,
+                passes: config.passType,
                 errors: errors
             });
         } else {
@@ -1016,8 +1015,8 @@ router.post('/:oid/tariffs/:tid/transhes/create', function(req, res, next) {
                         oid: oid,
                         tariff: tariff,
                         types: config.tariffTypes,
-                        services: config.serviceType,
                         statuses: config.cardStatus,
+                        passes: config.passType,
                         errors: err
                     });
                 }
@@ -1086,9 +1085,19 @@ router.get('/:oid/tariffs/:tid/cards', function(req, res, next) {
 
             } else {
                 var errors = [];
+                var rowItems = [];
                 if (rows.length == 0) {
                     errors = [{msg:"No cards found"}]
+                } else {
+                    rows.forEach( function(row) {
+                        var item = row;
+                        item.statusName = globals.methods.nameById(item.status, config.cardStatus);
+                        item.typeName = globals.methods.nameById(item.type, config.tariffTypes);
+                        item.passName = globals.methods.nameById(item.pass, config.passType);
+                        rowItems.push(item);
+                    });
                 }
+
                 return res.render('cards/cards', {
                     title: 'Cards',
                     account: parent,
@@ -1099,7 +1108,7 @@ router.get('/:oid/tariffs/:tid/cards', function(req, res, next) {
                     message: session_message,
                     error: session_error,
                     errors: errors,
-                    items: rows
+                    items: rowItems
                 });
             }
         });
@@ -1157,18 +1166,34 @@ router.get('/:oid/tariffs/:tid/transhes/:id/cards', function(req, res, next) {
                     errors: err
                 });
 
+            } else {
+                var errors = [];
+                var rowItems = [];
+                if (rows.length == 0) {
+                    errors = [{msg:"No cards found"}]
+                } else {
+                    rows.forEach( function(row) {
+                        var item = row;
+                        item.statusName = globals.methods.nameById(item.status, config.cardStatus);
+                        item.typeName = globals.methods.nameById(item.type, config.tariffTypes);
+                        item.passName = globals.methods.nameById(item.pass, config.passType);
+                        rowItems.push(item);
+                    });
+                }
+
+                return res.render('cards/cards', {
+                    title: 'Cards',
+                    account: parent,
+                    oid: oid,
+                    types: config.tariffTypes,
+                    tariff: tariff,
+                    transh: id,
+                    message: session_message,
+                    error: session_error,
+                    errors: errors,
+                    items: rowItems
+                });
             }
-            return res.render('cards/cards', {
-                title: 'Cards',
-                account: parent,
-                oid: oid,
-                types: config.tariffTypes,
-                tariff: tariff,
-                transh: id,
-                message: session_message,
-                error: session_error,
-                items: rows
-            });
         });
     });
 });
@@ -1300,6 +1325,96 @@ router.put('/:oid/tariffs/:tid/cards/:cid/mark', function(req, res, next){
 
 });
 
+//edit card
+
+router.get('/:oid/tariffs/:tid/cards/:cid', function(req, res, next) {
+
+    var oid = req.params.oid;
+    var tid = req.params.tid;
+    var cid = req.params.cid;
+
+    var parent = req.session.user;
+
+    var session_message = req.session.message ? req.session.message : null;
+    req.session.message = null;
+    var session_error = req.session.error ? req.session.error : null;
+    req.session.error = null;
+
+    Card.getById(cid, function(err, rows) {
+
+        if (err) {
+
+            req.session.error = 'Error getting card: '+err.message;
+            return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/cards');
+
+        }
+        var card = rows[0];
+        return res.render('cards/editcard', {
+            title: 'Cards',
+            account: parent,
+            oid: oid,
+            tid: tid,
+            cid: cid,
+            types: config.tariffTypes,
+            statuses: config.cardStatus,
+            passes: config.passType,
+            message: session_message,
+            error: session_error,
+            card: card
+        });
+    })
+});
+
+router.put('/:oid/tariffs/:tid/cards/:cid', function(req, res, next) {
+
+    var parent = req.session.user;
+
+    req.checkBody('status', 'Card status required').notEmpty();
+    req.checkBody('lifetime', 'Life time required').notEmpty();
+    req.checkBody('servicetime', 'Service time required').notEmpty();
+
+    var errors = req.validationErrors();
+
+    var oid = req.body.oid;
+    var tid = req.body.tid;
+    var cid = req.body.cid;
+
+    if (errors) {
+        return res.render('cards/editcard', {
+            title: 'Cards',
+            account: parent,
+            oid: oid,
+            tid: tid,
+            cid: cid,
+            types: config.tariffTypes,
+            statuses: config.cardStatus,
+            passes: config.passType,
+            errors: errors,
+            card: req.body
+        });
+    }
+
+    Card.updateCard(req.body, function(err, rows) {
+        if (err) {
+            return res.render('cards/editcard', {
+                title: 'Cards',
+                account: parent,
+                oid: oid,
+                tid: tid,
+                cid: cid,
+                types: config.tariffTypes,
+                statuses: config.cardStatus,
+                passes: config.passType,
+                error: err,
+                card: req.body
+            });
+        }
+        req.session.message = 'Card has been updated';
+        return res.redirect('/organizations/'+oid+'/tariffs/'+tid+'/cards');
+
+    })
+
+});
 
 module.exports = router;
 

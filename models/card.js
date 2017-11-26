@@ -3,6 +3,26 @@ var uniqid = require('uniqid');
 
 var Card = {
 
+    getById: function(cid, done) {
+
+        db.query('SELECT * FROM cards WHERE cid = ?', [cid], function(err, rows) {
+            if (err) {
+                return done(err);
+            }
+            done(null, rows);
+        })
+    },
+
+    updateCard: function(card, done) {
+
+        db.query('UPDATE cards SET discount = ?, type = ?, pass = ?, status = ?, lifetime = ?, servicetime = ? WHERE cid = ?', [card.discount, card.type, card.pass, card.status, card.lifetime, card.servicetime, card.cid], function(err, rows){
+            if (err) {
+                return done(err)
+            }
+            done(null, rows)
+        })
+    },
+
     getByTranshId: function(trid, done) {
         db.query('SELECT * from cards WHERE transh = ?', [trid], function(err, rows){
             if (err) {

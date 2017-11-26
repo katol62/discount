@@ -27,11 +27,13 @@ block content
                                     th Card Number
                                     th Transh Number
                                     th Card Type
-                                    th Service Type
+                                    th Discount
+                                    th Pass
                                     th Card status
                                     th Life time
                                     th Service time
                                     th Test Mark
+                                    th Actions
 
                             tbody
                                 each item, i in items
@@ -42,14 +44,17 @@ block content
                                         td #{item.m_code}
                                         td #{item.card_nb}
                                         td #{item.transh}
-                                        td #{item.type}
-                                        td #{item.service}
-                                        td #{item.status}
+                                        td #{item.typeName}
+                                        td #{item.discount}
+                                        td #{item.passName}
+                                        td #{item.statusName}
                                         td #{item.lifetime}
                                         td #{item.servicetime}
-                                        td #{item.test}
+                                        td #{item.test==1?'YES':'NO'}
                                             |&nbsp;
                                             a(onclick='doToggle('+oid+','+tariff.id+','+item.cid+'); return false;' style='cursor:pointer') Toggle
+                                        td
+                                            a(href='/organizations/'+oid+'/tariffs/'+tariff.id+'/cards/'+item.cid) Change
                 if account.role == 'admin' && transh
                     div.col-lg-12.margin-top
                         form(action='/organizations/'+oid+'/tariffs/'+tariff.id+'/transhes/'+transh+'/cards/fromcsv', enctype='multipart/form-data', method='post')
