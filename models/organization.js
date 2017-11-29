@@ -34,20 +34,30 @@ var Organization = {
             done(null, rows)
         })
     },
-    create: function(name, owner, done) {
-        db.query('INSERT INTO organization (name, owner) SELECT ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM organization WHERE name=?) LIMIT 1', [name, owner, name], function(err, rows) {
-            console.log('!===============')
-            console.log(err)
-            console.log(rows)
-            console.log('!===============')
+    create: function(body, done) {
+
+        var name = body.name;
+        var owner = body.owner;
+        var country = body.country;
+        var foc = body.foc;
+        var region = body.region;
+
+        db.query('INSERT INTO organization (name, owner, country, foc, region) SELECT ?, ?, ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT * FROM organization WHERE name=? AND region = ?) LIMIT 1', [name, owner, country, foc, region, name, region], function(err, rows) {
             if (err) {
                 return done(err)
             }
             done(null, rows)
         })
     },
-    update: function(id, name, owner, done) {
-        db.query('UPDATE organization SET name = ?, owner = ? WHERE id = ?', [name, owner, id], function(err, rows) {
+    update: function(id, body, done) {
+
+        var name = body.name;
+        var owner = body.owner;
+        var country = body.country;
+        var foc = body.foc;
+        var region = body.region;
+
+        db.query('UPDATE organization SET name = ?, owner = ?, country = ?, foc = ?, region = ? WHERE id = ?', [name, owner, country, foc, region, id], function(err, rows) {
             if (err) {
                 return done(err)
             }

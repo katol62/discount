@@ -11,8 +11,26 @@ block content
                 form(method='post' action='/organizations/create')
                     input#owner(type='hidden', name='owner', value=account.id)
                     .form-group
-                        label(for='name') Organization Name
-                        input#name.form-control(type='text', name='name', placeholder='Organization Name' value='')
+                        label(for='name') Название организации
+                        input#name.form-control(type='text', name='name', placeholder='Название организации' value='')
+                    .form-group
+                        label(for='country') Страна
+                        select#country.form-control.selectpicker(name="country" type="select" )
+                            option(value='0' title='--Select--')
+                            each country in countries
+                                option(value=country.id data-tokens=country.id) #{country.name}
+                    .form-group
+                        label(for='foc') Федеральный округ
+                        select#foc.form-control.selectpicker(name="foc" type="select" )
+                            option(value='0' title='--Select--')
+                            each foc in fos
+                                option(value=foc.id data-tokens=foc.id) #{foc.name}
+                    .form-group
+                        label(for='region') Регион
+                        select#region.form-control.selectpicker(name="region" type="select" )
+                            option(value='0' title='--Select--')
+                            each region in regions
+                                option(value=region.id data-tokens=region.id) #{region.name}
 
                     button.btn.btn-default(type='submit') Create
 
@@ -23,3 +41,43 @@ block content
                             li!= error.msg
                 if success
                     p #{success.msg}
+    script(type='text/javascript').
+        $('#country').on('change', function () {
+            var selected = $(this).find("option:selected").val();
+            $.ajax({
+                type: "GET",
+                url: '/location/countries/'+selected+'/fos',
+                //data: dataString,
+                success: function (result) {
+                    console.log(result)
+                    $("#foc").html('');
+                    $("#foc").append('<option value="">--Select--</option>')
+                    $.each(result, function () {
+                        $("#foc").append('<option value="' + this.id + '">' + this.name + '</option>')
+                    })
+                    $("#foc").selectpicker('refresh');
+                }
+
+            });
+
+        });
+
+        $('#foc').on('change', function () {
+            var selected = $(this).find("option:selected").val();
+            var selected = $(this).find("option:selected").val();
+            $.ajax({
+                type: "GET",
+                url: '/location/fos/' + selected + '/regions',
+                //data: dataString,
+                success: function (result) {
+                    console.log(result)
+                    $("#region").html('');
+                    $("#region").append('<option value="">--Select--</option>')
+                    $.each(result, function () {
+                        $("#region").append('<option value="' + this.id + '">' + this.name + '</option>')
+                    })
+                    $("#region").selectpicker('refresh');
+                }
+
+            });
+        });

@@ -10,6 +10,7 @@ var Organization = require('./../models/organization');
 var Tariff = require('./../models/tariff');
 var Transh = require('./../models/transh');
 var Card = require('./../models/card');
+var Location = require('./../models/location')
 
 var globals = require('./../misc/globals');
 
@@ -175,7 +176,7 @@ router.get('/', function(req, res, next) {
 });
 
 /*
- * Create user
+ * Create organization
  */
 
 //create user form
@@ -184,30 +185,59 @@ router.get('/create', function(req, res, next) {
     var sessionData = req.session;
     var user = sessionData.user;
 
-    return res.render('organization/createorganization', {
-        title: 'Create Organization',
-        account: user
+    Location.getCountries(function (err, rows) {
+        if (err) {
+            req.session.error = 'Location error: '+err.message;
+            return res.redirect('/organizations');
+        }
+        var countries = rows;
+        var fos = [];
+        var regions = [];
+        return res.render('organization/createorganization', {
+            title: 'Create Organization',
+            countries: countries,
+            fos: fos,
+            regions: regions,
+            account: user
+        });
     });
-
 });
-//create user post
+//create organization post
 router.post('/create', function(req, res, next) {
 
     req.checkBody('name', 'Organizarion name required').notEmpty();
+    req.checkBody('country', 'Country required').notEmpty();
+    req.checkBody('foc', 'FO required').notEmpty();
+    req.checkBody('region', 'Region required').notEmpty();
 
     var errors = req.validationErrors();
 
     var user = req.session.user;
 
     if (errors) {
-        return res.render('organization/createorganization', {
-            title: 'Create Organization',
-            account: user,
-            errors: errors
+
+        Location.getCountries(function (err, rows) {
+            if (err) {
+                req.session.error = 'Location error: '+err.message;
+                return res.redirect('/organizations');
+            }
+            var countries = rows;
+            var fos = [];
+            var regions = [];
+            return res.render('organization/createorganization', {
+                title: 'Create Organization',
+                countries: countries,
+                fos: fos,
+                regions: regions,
+                account: user,
+                errors: errors
+            });
         });
     } else {
 
-        Organization.create(req.body.name, req.body.owner, function(err, row){
+        console.log(req.body);
+
+        Organization.create(req.body, function(err, row){
             if (err) {
                 return res.render('organization/createorganization', {
                     title: 'Create Organization',
@@ -255,11 +285,51 @@ router.get('/:id/edit', function(req, res, next) {
                     errors: [{msg:"Organization not found"}]
                 });
             } else {
-                return res.render('organization/editorganization', {
-                    title: 'Organization Edit',
-                    account: parent,
-                    organization: rows[0]
+
+                var countries = [];
+                var fos = [];
+                var regions = [];
+                var organization = rows[0];
+
+                Location.getCountries(function (err, rows) {
+                    if (err) {
+                        req.session.error = 'Location error: ' + err.message;
+                        return res.redirect('/organizations');
+                    }
+
+                    countries = rows;
+
+                    Location.getFoByCountry(organization.country, function (err, rows) {
+                        if (err) {
+                            req.session.error = 'Location error: ' + err.message;
+                            return res.redirect('/organizations');
+                        }
+
+                        fos = rows;
+
+                        Location.getRegionByFo(organization.foc, function (err, rows) {
+                            if (err) {
+                                req.session.error = 'Location error: ' + err.message;
+                                return res.redirect('/organizations');
+                            }
+
+                            regions = rows;
+
+                            return res.render('organization/editorganization', {
+                                title: 'Organization Edit',
+                                account: parent,
+                                countries: countries,
+                                fos: fos,
+                                regions: regions,
+                                organization: organization
+                            });
+
+                        });
+
+                    });
+
                 });
+
             }
 
         }
@@ -273,6 +343,9 @@ router.put('/:id/edit', function(req, res, next) {
     var parent = req.session.user;
 
     req.checkBody('name', 'Organization name required').notEmpty();
+    req.checkBody('country', 'Country required').notEmpty();
+    req.checkBody('foc', 'FO required').notEmpty();
+    req.checkBody('region', 'Region required').notEmpty();
 
     var errors = req.validationErrors();
     console.log(errors);
@@ -281,51 +354,101 @@ router.put('/:id/edit', function(req, res, next) {
     var id = req.body.id;
     var uid = req.body.uid;
 
-    if (errors) {
-        return res.render('organization/editorganization', {
-            title: 'Organization Edit',
-            account: parent,
-            organization: organization,
-            errors: errors
-        });
-    } else {
+    var countries = [];
+    var fos = [];
+    var regions = [];
 
-        Organization.update(id, req.body.name, req.body.owner, function(err, result){
+    Location.getCountries(function (err, rows) {
+        if (err) {
+            req.session.error = 'Location error: ' + err.message;
+            return res.redirect('/organizations');
+        }
 
+        countries = rows;
+
+        Location.getFoByCountry(organization.country, function (err, rows) {
             if (err) {
-                return res.render('organization/editorganization', {
-                    title: 'Organization Edit',
-                    account: parent,
-                    organization: organization,
-                    errors: [{msg:"Organization update error: "+err.sqlMessage}]
-                });
-            } else {
-                if (result.rowsAffected == 0) {
+                req.session.error = 'Location error: ' + err.message;
+                return res.redirect('/organizations');
+            }
+
+            fos = rows;
+
+            Location.getRegionByFo(organization.foc, function (err, rows) {
+                if (err) {
+                    req.session.error = 'Location error: ' + err.message;
+                    return res.redirect('/organizations');
+                }
+
+                regions = rows;
+
+                if (errors) {
                     return res.render('organization/editorganization', {
                         title: 'Organization Edit',
                         account: parent,
                         organization: organization,
-                        errors: [{msg:"Nothing updated"}]
+                        countries: countries,
+                        fos: fos,
+                        regions: regions,
+                        errors: errors
                     });
                 } else {
-                    Organization.getById(organization.id, function(err, row){
+
+                    Organization.update(id, req.body, function(err, result){
+
                         if (err) {
                             return res.render('organization/editorganization', {
                                 title: 'Organization Edit',
                                 account: parent,
                                 organization: organization,
-                                errors: [{msg:"Organization update error: "+err}]
+                                countries: countries,
+                                fos: fos,
+                                regions: regions,
+                                errors: [{msg:"Organization update error: "+err.sqlMessage}]
                             });
                         } else {
-                            req.session.message = 'Organization has been updated';
-                            res.redirect('/organizations');
+                            if (result.rowsAffected == 0) {
+                                return res.render('organization/editorganization', {
+                                    title: 'Organization Edit',
+                                    account: parent,
+                                    organization: organization,
+                                    countries: countries,
+                                    fos: fos,
+                                    regions: regions,
+                                    errors: [{msg:"Nothing updated"}]
+                                });
+                            } else {
+                                Organization.getById(organization.id, function(err, row){
+                                    if (err) {
+                                        return res.render('organization/editorganization', {
+                                            title: 'Organization Edit',
+                                            account: parent,
+                                            organization: organization,
+                                            countries: countries,
+                                            fos: fos,
+                                            regions: regions,
+                                            errors: [{msg:"Organization update error: "+err}]
+                                        });
+                                    } else {
+                                        req.session.message = 'Organization has been updated';
+                                        res.redirect('/organizations');
+                                    }
+                                })
+
+                            }
                         }
                     })
-
                 }
-            }
-        })
-    }
+
+            });
+
+        });
+
+    });
+
+
+
+
 });
 
 /*
